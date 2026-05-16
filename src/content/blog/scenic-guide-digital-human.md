@@ -4,6 +4,9 @@ description: "记录灵山胜境智能导览系统里数字人部分的实现：
 pubDate: 2026-05-16
 tags: ["数字人", "Live2D", "Go", "WebSocket"]
 project: "灵山胜境智能导览系统"
+featured: true
+coverTone: "violet"
+coverLabel: "Live2D"
 draft: false
 ---
 

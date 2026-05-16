@@ -1,4 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
+
 const links = [
   { href: "/", label: "首页" },
   { href: "/blog/", label: "文章" },
@@ -16,8 +18,15 @@ const links = [
     </a>
     <div class="nav-links">
       {links.map((link) => <a href={link.href}>{link.label}</a>)}
+      <a class="icon-link" href="/search/" aria-label="搜索">
+        <Icon name="lucide:search" aria-hidden="true" />
+      </a>
+      <a class="icon-link" href="/rss.xml" aria-label="RSS 订阅">
+        <Icon name="lucide:rss" aria-hidden="true" />
+      </a>
       <button class="theme-toggle" type="button" aria-label="切换明暗主题" data-theme-toggle>
-        ◐
+        <Icon class="theme-icon theme-icon-light" name="lucide:sun" aria-hidden="true" />
+        <Icon class="theme-icon theme-icon-dark" name="lucide:moon" aria-hidden="true" />
       </button>
     </div>
   </nav>

@@ -17,21 +17,32 @@
 
 - Astro 6：静态站点与博客框架
 - Markdown/MDX：博客内容格式
-- CSS 或 Tailwind CSS：页面样式
+- CSS：页面样式
+- Pagefind：构建后生成静态全文搜索索引
+- astro-icon + Lucide：站内导航与操作图标
+- astro-expressive-code：Markdown 代码块高亮与展示增强
+- @astrojs/rss / @astrojs/sitemap：订阅源与站点地图
 - GitHub Actions：自动构建并部署到 GitHub Pages
+- 全站默认壁纸使用本地静态资源 `public/images/yukino-wallpaper.png`，由 `src/styles/global.css` 的 `--wallpaper-image` 和主题遮罩变量控制。
+- 首页与文章列表使用内容驱动的封面色块；文章 frontmatter 可通过 `featured`、`coverTone`、`coverLabel` 控制展示。
+- 全站动效使用原生 CSS + 少量内联脚本实现，包括页面进入、滚动出现、首屏视觉轻浮动和 hover 反馈，并尊重 `prefers-reduced-motion`。
+- 首页写作日历由已发布文章的 `pubDate` 自动生成，默认展示最新文章所在月份并高亮有文章的日期。
+- 桌面端启用自定义鼠标样式：核心光点 + `4e`、`Go`、`RAG`、`AI`、`Live2D` 技术字符拖尾；触屏设备和减少动态设置下自动关闭。
 
 ## 关键约定
 
 - 后续代码或配置更改前先阅读本文件。
 - 仅记录长期有效的项目事实、架构决策、命令和风险。
 - 迁移时优先保留既有文章链接或提供重定向，避免旧链接失效。
+- 视觉升级优先保持静态、轻量、可维护；封面视觉由 CSS 与文章元数据生成，站点背景优先使用本地静态素材，避免不可控远程素材。
 
 ## 运行与测试方式
 
 - 安装依赖：`npm install`
 - 本地开发：`npm run dev`
-- 生产构建：`npm run build`
+- 生产构建：`npm run build`（包含 `astro check`、`astro build` 和 `pagefind --site dist`）
 - 构建预览：`npm run preview`
+- 搜索索引位于 `dist/pagefind/`，仅在生产构建后生成；开发模式下搜索页会降级提示。
 - 迁移计划见 `ASTRO_MIGRATION_PLAN.md`。
 
 ## 已知风险
@@ -39,4 +50,6 @@
 - GitHub Pages 仓库设置需要使用 GitHub Actions 作为 Pages source。
 - 后续新增文章时，若需要兼容 Gmeek 旧 URL，应在 `public/post/` 下添加对应跳转页，或保留一致的 slug 策略。
 - 当前视觉内容仍是第一版占位文案，后续需要补充真实个人介绍、项目和文章内容。
+- 默认壁纸包含第三方动漫角色素材，仅适合个人非商业展示；若站点转向商业、公开作品集或需要严格授权，应替换为自有或明确授权素材。
 - `npm audit --audit-level=high` 无 high/critical；当前仅剩 `@astrojs/check` 依赖链里的 `yaml` moderate 审计提示。
+- 本地若已有旧的 `astro dev`/`astro preview` 占用 4321 端口，预览最新 `dist` 时应换用空闲端口，例如 `npm run preview -- --host 127.0.0.1 --port 4399`。

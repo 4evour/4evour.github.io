@@ -1,42 +1,112 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostList from "../components/PostList.astro";
+import WritingCalendar from "../components/WritingCalendar.astro";
 import { getPublishedPosts } from "../utils/posts";
 
 const posts = await getPublishedPosts();
-const featuredPosts = posts.slice(0, 3);
+const featuredPosts = posts.filter((post) => post.data.featured).slice(0, 3);
+const latestPosts = posts.slice(0, 3);
 ---
 
 <BaseLayout>
-  <section class="container hero">
-    <div>
-      <p class="eyebrow">Personal blog</p>
+  <section class="hero hero-redesign">
+    <div class="container hero-inner">
+      <div class="hero-copy-block">
+        <p class="eyebrow">Personal engineering notes</p>
       <h1>4evour</h1>
       <p class="hero-copy">
-        记录技术、项目和日常思考。这里会慢慢从一个测试站，长成更像自己的数字花园。
+          写项目、拆系统、记下那些真正值得复盘的工程细节。
       </p>
       <div class="hero-actions">
         <a class="button primary" href="/blog/">阅读文章</a>
-        <a class="button" href="/about/">了解我</a>
+          <a class="button" href="/projects/scenic-guide/">查看项目</a>
+      </div>
+        <dl class="hero-stats" aria-label="站点概览">
+          <div>
+            <dt>{posts.length}</dt>
+            <dd>篇文章</dd>
+          </div>
+          <div>
+            <dt>1</dt>
+            <dd>个项目归档</dd>
+          </div>
+          <div>
+            <dt>Astro</dt>
+            <dd>静态构建</dd>
+          </div>
+        </dl>
+    </div>
+
+      <aside class="hero-visual" aria-label="站点技术视觉">
+        <div class="visual-terminal">
+          <div class="terminal-bar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <pre><code>const focus = [
+  "Go service boundaries",
+  "RAG retrieval fallback",
+  "Live2D interaction logs",
+  "quiet static publishing"
+];</code></pre>
+        </div>
+        <div class="visual-layers">
+          <span>Gin</span>
+          <span>RAG</span>
+          <span>Vue</span>
+          <span>Live2D</span>
+        </div>
+        <p>从一次完整项目里，把架构、AI 能力和前端体验拆成能继续阅读的笔记。</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="container section project-spotlight">
+    <div class="spotlight-copy">
+      <p class="eyebrow">Featured project</p>
+      <h2>灵山胜境智能导览系统</h2>
+      <p>
+        一个把 Go/Gin、Vue、RAG 知识库、OpenAI 兼容接口和 Live2D 数字人串在一起的项目。
+        我把它拆成架构、检索和交互三条线来复盘。
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/projects/scenic-guide/">进入项目归档</a>
+        <a class="button" href="/blog/scenic-guide-architecture/">读架构复盘</a>
       </div>
     </div>
-    <aside class="portrait-panel" aria-label="站点简介">
-      <div class="portrait-content">
-        <strong>写给未来自己的技术笔记。</strong>
-        <span>Astro · GitHub Pages · Markdown</span>
+    <div class="spotlight-map" aria-label="项目能力模块">
+      <div>
+        <strong>Go API</strong>
+        <span>鉴权、限流、优雅关闭</span>
       </div>
-    </aside>
+      <div>
+        <strong>RAG</strong>
+        <span>Embedding + BM25 兜底</span>
+      </div>
+      <div>
+        <strong>Live2D</strong>
+        <span>SSE、WebSocket、表情同步</span>
+      </div>
+      <div>
+        <strong>Dashboard</strong>
+        <span>交互记录与运营看板</span>
+      </div>
+    </div>
   </section>
+
+  <WritingCalendar posts={posts} />
 
   <section class="container section">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Latest</p>
-        <h2>最近文章</h2>
-        <p>先保持轻盈，把真正值得保留的内容放在最前面。</p>
+        <p class="eyebrow">Featured writing</p>
+        <h2>精选文章</h2>
+        <p>先把能展示项目深度的几篇放在最前面。</p>
       </div>
       <a class="button" href="/blog/">全部文章</a>
     </div>
-    <PostList posts={featuredPosts} />
+    <PostList posts={featuredPosts.length > 0 ? featuredPosts : latestPosts} variant="cards" />
   </section>
 </BaseLayout>

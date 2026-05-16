@@ -8,13 +8,21 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
 ---
 
 <BaseLayout title={projectName} description="灵山胜境智能导览系统项目文章归档。">
-  <section class="container page-title">
-    <p class="eyebrow">Project</p>
-    <h1>{projectName}</h1>
-    <p>
-      这是我把 Go/Gin、Vue、RAG 知识库、OpenAI 兼容接口、数据看板和 Live2D
-      数字人串到一起的一次项目实践。下面三篇分别记录整体架构、RAG 实现和数字人集成。
-    </p>
+  <section class="container project-detail-hero">
+    <div>
+      <p class="eyebrow">Project archive</p>
+      <h1>{projectName}</h1>
+      <p>
+        这是我把 Go/Gin、Vue、RAG 知识库、OpenAI 兼容接口、数据看板和 Live2D
+        数字人串到一起的一次项目实践。
+      </p>
+    </div>
+    <div class="project-detail-panel" aria-label="项目技术栈">
+      <span>Go / Gin</span>
+      <span>Vue</span>
+      <span>RAG</span>
+      <span>Live2D</span>
+    </div>
   </section>
 
   <section class="container section">
@@ -26,6 +34,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       </div>
       <a class="button" href="/projects/">返回项目</a>
     </div>
-    <PostList posts={posts} />
+    <PostList posts={posts} variant="cards" />
   </section>
 </BaseLayout>

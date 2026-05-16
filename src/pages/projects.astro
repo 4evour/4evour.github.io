@@ -7,31 +7,34 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
 ---
 
 <BaseLayout title="项目" description="4evour 的项目与作品。">
-  <section class="container page-title">
-    <p class="eyebrow">Projects</p>
-    <h1>项目</h1>
-    <p>把我做过的项目整理成可以继续阅读的入口，而不只是放几个仓库链接。</p>
+  <section class="container page-title project-index-title">
+    <div>
+      <p class="eyebrow">Projects</p>
+      <h1>项目</h1>
+      <p>把做过的项目整理成可以继续阅读的入口，而不只是放几个仓库链接。</p>
+    </div>
+    <div class="project-index-mark" aria-hidden="true">01</div>
   </section>
   <section class="container section">
-    <ul class="post-list">
-      <li class="post-item">
-        <a href="/projects/scenic-guide/">
-          <div>
-            <h3>{projectName}</h3>
-            <p>
-              一个 Go + Vue + RAG + Live2D 的景区智能导览系统，包含问答、知识库、
-              管理后台、数据看板和数字人交互链路。
-            </p>
-            <div class="tag-list">
-              <span class="tag">Go</span>
-              <span class="tag">Vue</span>
-              <span class="tag">RAG</span>
-              <span class="tag">Live2D</span>
-            </div>
-          </div>
-          <span class="post-meta">{posts.length} 篇文章</span>
-        </a>
-      </li>
-    </ul>
+    <a class="project-card" href="/projects/scenic-guide/">
+      <div class="project-card-visual" aria-hidden="true">
+        <span>Guide</span>
+      </div>
+      <div>
+        <p class="eyebrow">Case study</p>
+        <h2>{projectName}</h2>
+        <p>
+          一个 Go + Vue + RAG + Live2D 的景区智能导览系统，包含问答、知识库、
+          管理后台、数据看板和数字人交互链路。
+        </p>
+        <div class="tag-list">
+          <span class="tag">Go</span>
+          <span class="tag">Vue</span>
+          <span class="tag">RAG</span>
+          <span class="tag">Live2D</span>
+        </div>
+      </div>
+      <span class="post-meta">{posts.length} 篇文章</span>
+    </a>
   </section>
 </BaseLayout>

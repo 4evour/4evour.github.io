@@ -4,6 +4,9 @@ description: "记录灵山胜境智能导览系统的整体搭建过程：Go/Gin
 pubDate: 2026-05-16
 tags: ["Go", "Vue", "项目复盘", "智能导览"]
 project: "灵山胜境智能导览系统"
+featured: true
+coverTone: "forest"
+coverLabel: "System"
 draft: false
 ---
 

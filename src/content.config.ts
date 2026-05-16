@@ -11,6 +11,9 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
     project: z.string().optional(),
+    featured: z.boolean().default(false),
+    coverTone: z.enum(["forest", "ink", "sunset", "violet"]).default("forest"),
+    coverLabel: z.string().optional(),
     draft: z.boolean().default(false),
   }),
 });

@@ -5,13 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && pagefind --site dist",
     "preview": "astro preview"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.2",
+    "@iconify-json/lucide": "^1.2.108",
     "astro": "^6.3.3",
+    "astro-expressive-code": "^0.42.0",
+    "astro-icon": "^1.1.5",
+    "pagefind": "^1.5.2",
     "typescript": "^5.9.3"
-  },
-  "devDependencies": {}
+  }
 }

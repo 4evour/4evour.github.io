@@ -4,16 +4,22 @@ import { formatDate } from "../utils/posts";
 
 interface Props {
   posts: CollectionEntry<"blog">[];
+  variant?: "list" | "cards";
 }
 
-const { posts } = Astro.props;
+const { posts, variant = "list" } = Astro.props;
 ---
 
-<ul class="post-list">
+<ul class:list={["post-list", variant === "cards" && "post-list-cards"]}>
   {
     posts.map((post) => (
       <li class="post-item">
         <a href={`/blog/${post.id}/`}>
+          {variant === "cards" && (
+            <div class={`post-cover tone-${post.data.coverTone}`} aria-hidden="true">
+              <span>{post.data.coverLabel ?? post.data.tags[0] ?? "Note"}</span>
+            </div>
+          )}
           <div>
             <h3>{post.data.title}</h3>
             <p>{post.data.description}</p>

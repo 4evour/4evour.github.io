@@ -1,0 +1,124 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="搜索" description="搜索 4evour blog 的文章、项目和标签。">
+  <section class="container page-title search-title">
+    <p class="eyebrow">Search</p>
+    <h1>搜索</h1>
+    <p>输入关键词，快速找到文章、项目和标签。</p>
+  </section>
+
+  <section class="container section search-section" aria-label="站内搜索">
+    <div class="search-box">
+      <Icon name="lucide:search" aria-hidden="true" />
+      <input
+        type="search"
+        placeholder="搜索 RAG、Live2D、Go..."
+        autocomplete="off"
+        aria-label="搜索关键词"
+        data-search-input
+      />
+    </div>
+    <p class="search-status" data-search-status>搜索索引会在生产构建后可用。</p>
+    <ol class="search-results" data-search-results></ol>
+  </section>
+</BaseLayout>
+
+<script>
+  type PagefindSearchFragment = {
+    excerpt?: string;
+    meta?: {
+      title?: string;
+    };
+    raw_url?: string;
+    url?: string;
+  };
+
+  type PagefindResult = {
+    data: () => Promise<PagefindSearchFragment>;
+  };
+
+  type PagefindSearchResponse = {
+    results: PagefindResult[];
+  };
+
+  type PagefindModule = {
+    search: (query: string) => Promise<PagefindSearchResponse>;
+  };
+
+  const input = document.querySelector<HTMLInputElement>("[data-search-input]");
+  const status = document.querySelector<HTMLElement>("[data-search-status]");
+  const results = document.querySelector<HTMLOListElement>("[data-search-results]");
+  const pagefindPath = "/pagefind/pagefind.js";
+  let pagefindReady: Promise<PagefindModule | null> | undefined;
+
+  const setStatus = (message: string) => {
+    if (status) status.textContent = message;
+  };
+
+  const loadPagefind = async () => {
+    if (!pagefindReady) {
+      pagefindReady = import(/* @vite-ignore */ pagefindPath)
+        .then((module) => (typeof module.search === "function" ? module : null))
+        .catch(() => null);
+    }
+
+    return pagefindReady;
+  };
+
+  const clearResults = () => {
+    if (results) results.innerHTML = "";
+  };
+
+  const renderResults = async (query: string) => {
+    const pagefind = await loadPagefind();
+
+    if (!pagefind) {
+      setStatus("当前是开发模式或搜索索引尚未生成。请运行 npm run build 后预览。");
+      clearResults();
+      return;
+    }
+
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setStatus("输入关键词开始搜索。");
+      clearResults();
+      return;
+    }
+
+    const search = await pagefind.search(trimmedQuery);
+    const searchResults = await Promise.all(search.results.slice(0, 12).map((result) => result.data()));
+
+    clearResults();
+
+    if (searchResults.length === 0) {
+      setStatus(`没有找到“${trimmedQuery}”。`);
+      return;
+    }
+
+    setStatus(`找到 ${search.results.length} 条结果。`);
+
+    for (const result of searchResults) {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      const title = document.createElement("strong");
+      const excerpt = document.createElement("p");
+
+      link.href = result.url ?? result.raw_url ?? "/";
+      title.textContent = result.meta?.title ?? "未命名页面";
+      excerpt.innerHTML = result.excerpt ?? "";
+
+      link.append(title, excerpt);
+      item.append(link);
+      results?.append(item);
+    }
+  };
+
+  input?.addEventListener("input", () => {
+    void renderResults(input.value);
+  });
+
+  setStatus("输入关键词开始搜索。");
+</script>

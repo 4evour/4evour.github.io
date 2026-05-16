@@ -1,0 +1,102 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatDate } from "../utils/posts";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+}
+
+const { posts } = Astro.props;
+const calendarPosts = [...posts].sort(
+  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf(),
+);
+const latestPost = posts[0];
+const activeMonth = latestPost?.data.pubDate ?? new Date();
+const year = activeMonth.getFullYear();
+const month = activeMonth.getMonth();
+const monthLabel = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+}).format(activeMonth);
+const weekdayLabels = ["一", "二", "三", "四", "五", "六", "日"];
+const firstDay = new Date(year, month, 1);
+const firstWeekday = (firstDay.getDay() + 6) % 7;
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+const leadingDays = Array.from({ length: firstWeekday }, () => null);
+const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+const cells = [...leadingDays, ...days];
+const postsByDay = new Map<number, CollectionEntry<"blog">[]>();
+
+for (const post of posts) {
+  const date = post.data.pubDate;
+
+  if (date.getFullYear() === year && date.getMonth() === month) {
+    const dayPosts = postsByDay.get(date.getDate()) ?? [];
+    dayPosts.push(post);
+    postsByDay.set(date.getDate(), dayPosts);
+  }
+}
+
+const activeDays = Array.from(postsByDay.values()).flat().length;
+---
+
+<section class="container section writing-calendar-section" aria-labelledby="calendar-title">
+  <div class="calendar-copy">
+    <p class="eyebrow">Writing calendar</p>
+    <h2 id="calendar-title">写作日历</h2>
+    <p>
+      用发布日期看内容节奏。当前展示最新文章所在月份：
+      <strong>{monthLabel}</strong>。
+    </p>
+  </div>
+
+  <div class="calendar-board">
+    <div class="calendar-summary">
+      <div>
+        <span>{monthLabel}</span>
+        <strong>{activeDays}</strong>
+      </div>
+      <p>本月文章</p>
+    </div>
+
+    <div class="calendar-grid" aria-label={`${monthLabel} 发布日历`}>
+      {weekdayLabels.map((label) => <span class="calendar-weekday">{label}</span>)}
+      {
+        cells.map((day) => {
+          const dayPosts = day ? postsByDay.get(day) ?? [] : [];
+          const hasPosts = dayPosts.length > 0;
+
+          return (
+            <div class:list={["calendar-day", !day && "is-empty", hasPosts && "has-posts"]}>
+              {day && (
+                <>
+                  {hasPosts ? (
+                    <a href={`/blog/${dayPosts[0].id}/`} aria-label={`${month + 1} 月 ${day} 日有 ${dayPosts.length} 篇文章`}>
+                      <span>{day}</span>
+                      <small>{dayPosts.length}</small>
+                    </a>
+                  ) : (
+                    <span>{day}</span>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <ol class="calendar-posts" aria-label={`${monthLabel} 文章列表`}>
+      {
+        calendarPosts
+          .filter((post) => post.data.pubDate.getFullYear() === year && post.data.pubDate.getMonth() === month)
+          .map((post) => (
+            <li>
+              <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+              <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            </li>
+          ))
+      }
+    </ol>
+  </div>
+</section>

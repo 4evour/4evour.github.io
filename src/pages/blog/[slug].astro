@@ -1,6 +1,9 @@
 ---
 import { render } from "astro:content";
+import BackToTop from "../../components/BackToTop.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ReadingProgress from "../../components/ReadingProgress.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
 import { getPublishedPosts, formatDate } from "../../utils/posts";
 
 export async function getStaticPaths() {
@@ -13,29 +16,40 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
+  <ReadingProgress />
   <article class="article">
-    <header class="article-header">
-      <p class="eyebrow">Post</p>
-      <h1>{post.data.title}</h1>
-      <div class="post-meta">
-        <time datetime={post.data.pubDate.toISOString()}>
-          {formatDate(post.data.pubDate)}
-        </time>
-        {
-          post.data.tags.map((tag) => (
-            <a class="tag" href={`/tags/${encodeURIComponent(tag)}/`}>
-              {tag}
-            </a>
-          ))
-        }
+    <header class="article-header article-hero">
+      <div>
+        <p class="eyebrow">{post.data.project ?? "Post"}</p>
+        <h1>{post.data.title}</h1>
+        <p>{post.data.description}</p>
+        <div class="post-meta">
+          <time datetime={post.data.pubDate.toISOString()}>
+            {formatDate(post.data.pubDate)}
+          </time>
+          {
+            post.data.tags.map((tag) => (
+              <a class="tag" href={`/tags/${encodeURIComponent(tag)}/`}>
+                {tag}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+      <div class={`post-cover article-cover tone-${post.data.coverTone}`} aria-hidden="true">
+        <span>{post.data.coverLabel ?? post.data.tags[0] ?? "Note"}</span>
       </div>
     </header>
-    <div class="article-body">
-      <Content />
+    <div class="article-layout">
+      <TableOfContents headings={headings} />
+      <div class="article-body">
+        <Content />
+      </div>
     </div>
   </article>
+  <BackToTop />
 </BaseLayout>

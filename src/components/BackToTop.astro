@@ -1,0 +1,22 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<button class="back-to-top" type="button" aria-label="返回顶部" data-back-to-top>
+  <Icon name="lucide:arrow-up" aria-hidden="true" />
+</button>
+
+<script is:inline>
+  const button = document.querySelector("[data-back-to-top]");
+
+  const updateBackToTop = () => {
+    button?.classList.toggle("is-visible", window.scrollY > 480);
+  };
+
+  button?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  updateBackToTop();
+  window.addEventListener("scroll", updateBackToTop, { passive: true });
+</script>
