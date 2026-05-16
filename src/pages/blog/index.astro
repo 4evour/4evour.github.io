@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostList from "../../components/PostList.astro";
+import { getPublishedPosts } from "../../utils/posts";
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout title="文章" description="4evour 的博客文章列表。">
+  <section class="container page-title">
+    <p class="eyebrow">Blog</p>
+    <h1>文章</h1>
+    <p>按时间整理的技术记录、项目复盘和零散想法。</p>
+  </section>
+  <section class="container section">
+    <PostList posts={posts} />
+  </section>
+</BaseLayout>

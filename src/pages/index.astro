@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostList from "../components/PostList.astro";
+import { getPublishedPosts } from "../utils/posts";
+
+const posts = await getPublishedPosts();
+const featuredPosts = posts.slice(0, 3);
+---
+
+<BaseLayout>
+  <section class="container hero">
+    <div>
+      <p class="eyebrow">Personal blog</p>
+      <h1>4evour</h1>
+      <p class="hero-copy">
+        记录技术、项目和日常思考。这里会慢慢从一个测试站，长成更像自己的数字花园。
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/blog/">阅读文章</a>
+        <a class="button" href="/about/">了解我</a>
+      </div>
+    </div>
+    <aside class="portrait-panel" aria-label="站点简介">
+      <div class="portrait-content">
+        <strong>写给未来自己的技术笔记。</strong>
+        <span>Astro · GitHub Pages · Markdown</span>
+      </div>
+    </aside>
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Latest</p>
+        <h2>最近文章</h2>
+        <p>先保持轻盈，把真正值得保留的内容放在最前面。</p>
+      </div>
+      <a class="button" href="/blog/">全部文章</a>
+    </div>
+    <PostList posts={featuredPosts} />
+  </section>
+</BaseLayout>
