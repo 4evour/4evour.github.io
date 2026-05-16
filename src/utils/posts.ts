@@ -23,3 +23,10 @@ export function getAllTags(
     (a, b) => a.localeCompare(b),
   );
 }
+
+export function getPostsByProject(
+  posts: Awaited<ReturnType<typeof getPublishedPosts>>,
+  project: string,
+) {
+  return posts.filter((post) => post.data.project === project);
+}

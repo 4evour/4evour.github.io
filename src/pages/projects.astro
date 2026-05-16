@@ -1,22 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getPostsByProject, getPublishedPosts } from "../utils/posts";
+
+const projectName = "灵山胜境智能导览系统";
+const posts = getPostsByProject(await getPublishedPosts(), projectName);
 ---
 
 <BaseLayout title="项目" description="4evour 的项目与作品。">
   <section class="container page-title">
     <p class="eyebrow">Projects</p>
     <h1>项目</h1>
-    <p>后续可以在这里展示开源项目、实验作品或学习成果。</p>
+    <p>把我做过的项目整理成可以继续阅读的入口，而不只是放几个仓库链接。</p>
   </section>
   <section class="container section">
     <ul class="post-list">
       <li class="post-item">
-        <a href="https://github.com/4evour" rel="noreferrer">
+        <a href="/projects/scenic-guide/">
           <div>
-            <h3>GitHub</h3>
-            <p>先从 GitHub 入口开始，后续再补充精选项目。</p>
+            <h3>{projectName}</h3>
+            <p>
+              一个 Go + Vue + RAG + Live2D 的景区智能导览系统，包含问答、知识库、
+              管理后台、数据看板和数字人交互链路。
+            </p>
+            <div class="tag-list">
+              <span class="tag">Go</span>
+              <span class="tag">Vue</span>
+              <span class="tag">RAG</span>
+              <span class="tag">Live2D</span>
+            </div>
           </div>
-          <span class="post-meta">外部链接</span>
+          <span class="post-meta">{posts.length} 篇文章</span>
         </a>
       </li>
     </ul>

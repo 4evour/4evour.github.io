@@ -11,6 +11,7 @@
 - 项目已从 Gmeek 迁移为 Astro 静态站点。
 - 原 Gmeek 文章 `test1` 已迁移到 `src/content/blog/test1.md`，新地址为 `/blog/test1/`。
 - 旧地址 `/post/test1.html` 通过 `public/post/test1.html` 跳转到新地址。
+- 已根据 `D:\go web 01` 的“灵山胜境景区智能导览系统”项目生成 3 篇项目复盘文章，覆盖整体架构、RAG 知识库和 Live2D 数字人集成，并归档到 `/projects/scenic-guide/` 项目页。
 
 ## 拟采用技术栈
 

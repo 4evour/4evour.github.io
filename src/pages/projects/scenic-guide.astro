@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostList from "../../components/PostList.astro";
+import { getPostsByProject, getPublishedPosts } from "../../utils/posts";
+
+const projectName = "灵山胜境智能导览系统";
+const posts = getPostsByProject(await getPublishedPosts(), projectName);
+---
+
+<BaseLayout title={projectName} description="灵山胜境智能导览系统项目文章归档。">
+  <section class="container page-title">
+    <p class="eyebrow">Project</p>
+    <h1>{projectName}</h1>
+    <p>
+      这是我把 Go/Gin、Vue、RAG 知识库、OpenAI 兼容接口、数据看板和 Live2D
+      数字人串到一起的一次项目实践。下面三篇分别记录整体架构、RAG 实现和数字人集成。
+    </p>
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Notes</p>
+        <h2>项目文章</h2>
+        <p>按技术链路拆开写，比单独放一个仓库链接更容易看清这个项目做了什么。</p>
+      </div>
+      <a class="button" href="/projects/">返回项目</a>
+    </div>
+    <PostList posts={posts} />
+  </section>
+</BaseLayout>
