@@ -48,13 +48,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     search: (query: string) => Promise<PagefindSearchResponse>;
   };
 
-  const input = document.querySelector<HTMLInputElement>("[data-search-input]");
-  const status = document.querySelector<HTMLElement>("[data-search-status]");
-  const results = document.querySelector<HTMLOListElement>("[data-search-results]");
   const pagefindPath = "/pagefind/pagefind.js";
   let pagefindReady: Promise<PagefindModule | null> | undefined;
 
-  const setStatus = (message: string) => {
+  const setStatus = (status: HTMLElement | null, message: string) => {
     if (status) status.textContent = message;
   };
 
@@ -68,37 +65,41 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     return pagefindReady;
   };
 
-  const clearResults = () => {
+  const clearResults = (results: HTMLOListElement | null) => {
     if (results) results.innerHTML = "";
   };
 
-  const renderResults = async (query: string) => {
+  const renderResults = async (
+    query: string,
+    status: HTMLElement | null,
+    results: HTMLOListElement | null,
+  ) => {
     const pagefind = await loadPagefind();
 
     if (!pagefind) {
-      setStatus("当前是开发模式或搜索索引尚未生成。请运行 npm run build 后预览。");
-      clearResults();
+      setStatus(status, "当前是开发模式或搜索索引尚未生成。请运行 npm run build 后预览。");
+      clearResults(results);
       return;
     }
 
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
-      setStatus("输入关键词开始搜索。");
-      clearResults();
+      setStatus(status, "输入关键词开始搜索。");
+      clearResults(results);
       return;
     }
 
     const search = await pagefind.search(trimmedQuery);
     const searchResults = await Promise.all(search.results.slice(0, 12).map((result) => result.data()));
 
-    clearResults();
+    clearResults(results);
 
     if (searchResults.length === 0) {
-      setStatus(`没有找到“${trimmedQuery}”。`);
+      setStatus(status, `没有找到“${trimmedQuery}”。`);
       return;
     }
 
-    setStatus(`找到 ${search.results.length} 条结果。`);
+    setStatus(status, `找到 ${search.results.length} 条结果。`);
 
     for (const result of searchResults) {
       const item = document.createElement("li");
@@ -116,9 +117,21 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     }
   };
 
-  input?.addEventListener("input", () => {
-    void renderResults(input.value);
-  });
+  const setupSearch = () => {
+    const input = document.querySelector<HTMLInputElement>("[data-search-input]");
+    if (!input || input.dataset.searchReady === "true") return;
 
-  setStatus("输入关键词开始搜索。");
+    const status = document.querySelector<HTMLElement>("[data-search-status]");
+    const results = document.querySelector<HTMLOListElement>("[data-search-results]");
+
+    input.dataset.searchReady = "true";
+    input.addEventListener("input", () => {
+      void renderResults(input.value, status, results);
+    });
+
+    setStatus(status, "输入关键词开始搜索。");
+  };
+
+  setupSearch();
+  document.addEventListener("astro:page-load", setupSearch);
 </script>

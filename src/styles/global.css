@@ -525,6 +525,85 @@ button {
   line-height: 1.75;
 }
 
+.typed-terminal {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--accent-warm) 18%, transparent), transparent 24%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 48%),
+    color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  animation: float-panel 6s ease-in-out 900ms infinite;
+}
+
+.typed-terminal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0 46%, color-mix(in srgb, var(--accent) 7%, transparent) 48% 52%, transparent 54% 100%);
+  background-size: 100% 0.75rem;
+  opacity: 0.5;
+}
+
+.typed-terminal .terminal-bar {
+  position: relative;
+  z-index: 1;
+}
+
+.terminal-bar strong {
+  margin-left: auto;
+  color: var(--muted);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.typed-terminal pre {
+  position: relative;
+  z-index: 1;
+  min-height: 15rem;
+  margin: 0;
+  padding: clamp(1.2rem, 3vw, 1.7rem);
+  overflow: auto;
+  color: var(--accent);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: clamp(0.98rem, 1.65vw, 1.16rem);
+  font-weight: 760;
+  line-height: 1.82;
+  white-space: pre-wrap;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.typed-cursor {
+  color: var(--accent-warm);
+}
+
+.typed-terminal-status {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.85rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.typed-terminal-status span:first-child {
+  width: 0.52rem;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: var(--accent-warm);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent-warm) 58%, transparent);
+  animation: status-pulse 1200ms ease-in-out infinite;
+}
+
 .visual-layers {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -731,6 +810,112 @@ button {
 .calendar-posts a {
   font-weight: 760;
   text-decoration: none;
+}
+
+.daily-poem-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  justify-self: end;
+  width: min(calc(100vw - 1.6rem), 17rem);
+  margin-top: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, var(--accent-warm));
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--accent-warm) 15%, transparent), transparent 36%),
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 94%, transparent), color-mix(in srgb, var(--surface-strong) 72%, transparent));
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--text) 9%, transparent);
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  transform: translate(0.75rem, 0.55rem);
+}
+
+.daily-poem-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--accent-warm) 11%, transparent) 1px, transparent 1px);
+  background-size: 1.35rem 1.35rem;
+  opacity: 0.54;
+}
+
+.poem-seal {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  border-right: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  padding: 0.75rem 0.7rem;
+}
+
+.poem-seal span {
+  display: grid;
+  min-width: 1.9rem;
+  min-height: 4.7rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent-warm) 72%, var(--border));
+  border-radius: 6px;
+  padding: 0.4rem 0.22rem;
+  background: color-mix(in srgb, var(--accent-warm) 12%, var(--surface));
+  color: var(--accent-warm);
+  font-family:
+    "Songti SC", "STSong", "Noto Serif SC", serif;
+  font-size: 0.88rem;
+  font-weight: 760;
+  line-height: 1.1;
+  text-align: center;
+  writing-mode: vertical-rl;
+}
+
+.poem-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.75rem 0.85rem 0.8rem;
+}
+
+.poem-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.poem-meta span:first-child {
+  color: var(--accent);
+  font-weight: 760;
+}
+
+.poem-content strong {
+  display: block;
+  margin: 0.45rem 0 0;
+  font-family:
+    "Songti SC", "STSong", "Noto Serif SC", serif;
+  font-size: 0.95rem;
+  font-weight: 760;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.poem-content blockquote {
+  margin: 0.45rem 0 0;
+  color: var(--text);
+  font-family:
+    "Songti SC", "STSong", "Noto Serif SC", serif;
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 .spotlight-copy h2 {
@@ -1091,6 +1276,99 @@ button {
   font-weight: 760;
 }
 
+.tech-graph-section {
+  padding-top: 2rem;
+}
+
+.tech-force-graph {
+  position: relative;
+  min-height: clamp(20rem, 48vw, 30rem);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 34%),
+    linear-gradient(90deg, color-mix(in srgb, var(--border) 30%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--border) 30%, transparent) 1px, transparent 1px),
+    color-mix(in srgb, var(--surface) 84%, transparent);
+  background-size: auto, 2rem 2rem, 2rem 2rem, auto;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.tech-force-graph::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 0 38%, color-mix(in srgb, var(--accent) 14%, transparent) 48%, transparent 58% 100%);
+  animation: graph-scan 7s ease-in-out infinite;
+}
+
+.tech-force-graph svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+
+.tech-graph-links line {
+  stroke: color-mix(in srgb, var(--accent) 54%, transparent);
+  stroke-width: 1.7;
+  stroke-dasharray: 7 9;
+  animation: graph-link-flow 1800ms linear infinite;
+}
+
+.tech-node {
+  cursor: grab;
+}
+
+.tech-node:active {
+  cursor: grabbing;
+}
+
+.tech-node circle {
+  stroke: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke-width: 2;
+  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.16)) drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 26%, transparent));
+}
+
+.tech-node text {
+  fill: var(--bg);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 820;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+.tech-graph-hint {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  border-radius: 8px;
+  padding: 0.42rem 0.6rem;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 760;
+  backdrop-filter: blur(14px);
+}
+
+.tech-graph-hint span {
+  width: 0.55rem;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 54%, transparent);
+}
+
 .article {
   width: min(100% - 2rem, 1120px);
   margin-inline: auto;
@@ -1410,6 +1688,37 @@ button {
   }
 }
 
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: scale(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes graph-scan {
+  0%,
+  20% {
+    transform: translateX(-70%);
+  }
+
+  65%,
+  100% {
+    transform: translateX(70%);
+  }
+}
+
+@keyframes graph-link-flow {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
 @keyframes cursor-trail {
   0% {
     opacity: 0;
@@ -1491,12 +1800,31 @@ button {
     min-height: 2.9rem;
   }
 
+  .typed-terminal pre {
+    min-height: 11rem;
+  }
+
   .spotlight-copy h2 {
     max-width: none;
   }
 
   .calendar-copy h2 {
     max-width: none;
+  }
+
+  .daily-poem-card {
+    justify-self: end;
+    width: min(calc(100vw - 1.5rem), 16.5rem);
+    margin-top: 0.25rem;
+    transform: translate(0, 0.25rem);
+  }
+
+  .daily-poem-card::before {
+    inset: 0;
+  }
+
+  .poem-seal {
+    padding: 0.7rem 0.65rem;
   }
 
   .calendar-posts li {
@@ -1543,6 +1871,14 @@ button {
 
   .project-detail-panel {
     grid-template-columns: 1fr;
+  }
+
+  .tech-force-graph {
+    min-height: 19rem;
+  }
+
+  .tech-node text {
+    font-size: 0.62rem;
   }
 
   .article {

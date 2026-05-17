@@ -6,17 +6,34 @@ import { Icon } from "astro-icon/components";
   <Icon name="lucide:arrow-up" aria-hidden="true" />
 </button>
 
-<script is:inline>
-  const button = document.querySelector("[data-back-to-top]");
+<script is:inline data-astro-rerun>
+  (() => {
+    const button = document.querySelector("[data-back-to-top]");
+    if (!button || button.dataset.backToTopReady === "true") return;
 
-  const updateBackToTop = () => {
-    button?.classList.toggle("is-visible", window.scrollY > 480);
-  };
+    button.dataset.backToTopReady = "true";
+    const controller = new AbortController();
 
-  button?.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+    const updateBackToTop = () => {
+      button.classList.toggle("is-visible", window.scrollY > 480);
+    };
 
-  updateBackToTop();
-  window.addEventListener("scroll", updateBackToTop, { passive: true });
+    button.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    updateBackToTop();
+    window.addEventListener("scroll", updateBackToTop, {
+      passive: true,
+      signal: controller.signal,
+    });
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        controller.abort();
+        delete button.dataset.backToTopReady;
+      },
+      { once: true },
+    );
+  })();
 </script>

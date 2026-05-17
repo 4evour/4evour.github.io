@@ -1,0 +1,176 @@
+---
+const nodes = [
+  { id: "Scenic Guide", group: "core", label: "Project" },
+  { id: "Go / Gin", group: "backend", label: "API" },
+  { id: "RAG", group: "ai", label: "Search" },
+  { id: "Live2D", group: "ui", label: "Avatar" },
+  { id: "Vue", group: "ui", label: "Client" },
+  { id: "SSE", group: "backend", label: "Stream" },
+  { id: "OpenAI API", group: "ai", label: "LLM" },
+  { id: "BM25", group: "ai", label: "Fallback" },
+  { id: "WebSocket", group: "backend", label: "Realtime" },
+  { id: "Dashboard", group: "ui", label: "Ops" },
+];
+
+const links = [
+  { source: "Scenic Guide", target: "Go / Gin" },
+  { source: "Scenic Guide", target: "RAG" },
+  { source: "Scenic Guide", target: "Live2D" },
+  { source: "Scenic Guide", target: "Vue" },
+  { source: "Go / Gin", target: "SSE" },
+  { source: "RAG", target: "OpenAI API" },
+  { source: "RAG", target: "BM25" },
+  { source: "Live2D", target: "SSE" },
+  { source: "Live2D", target: "WebSocket" },
+  { source: "Vue", target: "Go / Gin" },
+  { source: "Vue", target: "Dashboard" },
+  { source: "Dashboard", target: "Go / Gin" },
+];
+---
+
+<section class="container section tech-graph-section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Tech graph</p>
+      <h2>技术星图</h2>
+      <p>把项目里的后端、AI、前端交互关系放在一张可探索的图里。</p>
+    </div>
+  </div>
+  <div
+    class="tech-force-graph"
+    data-tech-force-graph
+    data-nodes={JSON.stringify(nodes)}
+    data-links={JSON.stringify(links)}
+    aria-label="灵山胜境智能导览系统技术星图"
+  >
+    <svg viewBox="0 0 760 420" role="img" aria-label="项目技术关系图"></svg>
+    <div class="tech-graph-hint" aria-hidden="true">
+      <span></span>
+      <strong>拖动节点探索链路</strong>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { drag } from "d3-drag";
+  import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation } from "d3-force";
+  import { select } from "d3-selection";
+
+  type GraphNode = {
+    id: string;
+    group: string;
+    label: string;
+    x?: number;
+    y?: number;
+    fx?: number | null;
+    fy?: number | null;
+  };
+
+  type GraphLink = {
+    source: string | GraphNode;
+    target: string | GraphNode;
+  };
+
+  const setupTechGraphs = () => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    document.querySelectorAll("[data-tech-force-graph]").forEach((graph) => {
+      if (!(graph instanceof HTMLElement) || graph.dataset.graphReady === "true") return;
+
+      const svgElement = graph.querySelector("svg");
+      if (!(svgElement instanceof SVGSVGElement)) return;
+
+      const nodes = JSON.parse(graph.dataset.nodes ?? "[]") as GraphNode[];
+      const links = JSON.parse(graph.dataset.links ?? "[]") as GraphLink[];
+      const width = 760;
+      const height = 420;
+      const palette: Record<string, string> = {
+        core: "var(--accent-warm)",
+        backend: "var(--accent)",
+        ai: "var(--accent-strong)",
+        ui: "var(--muted)",
+      };
+
+      graph.dataset.graphReady = "true";
+      const svg = select(svgElement);
+      svg.selectAll("*").remove();
+
+      const link = svg
+        .append("g")
+        .attr("class", "tech-graph-links")
+        .selectAll("line")
+        .data(links)
+        .join("line");
+
+      const node = svg
+        .append("g")
+        .attr("class", "tech-graph-nodes")
+        .selectAll("g")
+        .data(nodes)
+        .join("g")
+        .attr("class", "tech-node");
+
+      node.append("circle").attr("r", (item) => (item.group === "core" ? 38 : 24)).attr("fill", (item) => palette[item.group] ?? "var(--accent)");
+      node.append("text").attr("text-anchor", "middle").attr("dy", "0.35em").text((item) => item.id);
+      node.append("title").text((item) => `${item.label}: ${item.id}`);
+
+      const simulation = forceSimulation(nodes)
+        .force("link", forceLink<GraphNode, GraphLink>(links).id((item) => item.id).distance(108).strength(0.72))
+        .force("charge", forceManyBody().strength(-430))
+        .force("collide", forceCollide<GraphNode>().radius((item) => (item.group === "core" ? 70 : 52)))
+        .force("center", forceCenter(width / 2, height / 2));
+
+      const render = () => {
+        if (!graph.isConnected) {
+          simulation.stop();
+          return;
+        }
+
+        link
+          .attr("x1", (item) => (item.source as GraphNode).x ?? 0)
+          .attr("y1", (item) => (item.source as GraphNode).y ?? 0)
+          .attr("x2", (item) => (item.target as GraphNode).x ?? 0)
+          .attr("y2", (item) => (item.target as GraphNode).y ?? 0);
+
+        node.attr("transform", (item) => `translate(${item.x ?? 0},${item.y ?? 0})`);
+      };
+
+      if (reduceMotion) {
+        simulation.tick(180);
+        simulation.stop();
+        render();
+        return;
+      }
+
+      const nodeDrag = drag<SVGGElement, GraphNode>()
+        .on("start", (event) => {
+          if (!event.active) simulation.alphaTarget(0.18).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
+        })
+        .on("drag", (event) => {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        })
+        .on("end", (event) => {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        });
+
+      node.call(nodeDrag as never);
+      simulation.on("tick", render);
+      document.addEventListener(
+        "astro:before-swap",
+        () => {
+          simulation.stop();
+          delete graph.dataset.graphReady;
+        },
+        { once: true },
+      );
+    });
+  };
+
+  setupTechGraphs();
+  document.addEventListener("astro:page-load", setupTechGraphs);
+</script>

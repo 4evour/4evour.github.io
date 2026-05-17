@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostList from "../components/PostList.astro";
+import DailyPoem from "../components/DailyPoem.astro";
+import TypedTerminal from "../components/TypedTerminal.astro";
 import WritingCalendar from "../components/WritingCalendar.astro";
 import { getPublishedPosts } from "../utils/posts";
 
@@ -39,25 +41,14 @@ const latestPosts = posts.slice(0, 3);
     </div>
 
       <aside class="hero-visual" aria-label="站点技术视觉">
-        <div class="visual-terminal">
-          <div class="terminal-bar">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <pre><code>const focus = [
-  "Go service boundaries",
-  "RAG retrieval fallback",
-  "Live2D interaction logs",
-  "quiet static publishing"
-];</code></pre>
-        </div>
+        <TypedTerminal />
         <div class="visual-layers">
           <span>Gin</span>
           <span>RAG</span>
           <span>Vue</span>
           <span>Live2D</span>
         </div>
+        <DailyPoem />
         <p>从一次完整项目里，把架构、AI 能力和前端体验拆成能继续阅读的笔记。</p>
       </aside>
     </div>

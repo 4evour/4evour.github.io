@@ -1,0 +1,145 @@
+---
+const poems = [
+  {
+    title: "山居秋暝",
+    dynasty: "唐",
+    author: "王维",
+    excerpt: "空山新雨后，天气晚来秋。明月松间照，清泉石上流。",
+    note: "雨后山林、松间明月和石上清泉，适合把思绪从喧声里收回来。",
+    mood: "清秋",
+  },
+  {
+    title: "定风波",
+    dynasty: "宋",
+    author: "苏轼",
+    excerpt: "竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生。",
+    note: "风雨不是阻滞，而是把人照亮的背景。",
+    mood: "旷达",
+  },
+  {
+    title: "饮酒",
+    dynasty: "东晋",
+    author: "陶渊明",
+    excerpt: "采菊东篱下，悠然见南山。山气日夕佳，飞鸟相与还。",
+    note: "把日子过慢一点，山色会自己走到眼前。",
+    mood: "归隐",
+  },
+  {
+    title: "望岳",
+    dynasty: "唐",
+    author: "杜甫",
+    excerpt: "会当凌绝顶，一览众山小。",
+    note: "很适合放在要重新开始、重新攀登的一天。",
+    mood: "登临",
+  },
+  {
+    title: "浪淘沙令",
+    dynasty: "南唐",
+    author: "李煜",
+    excerpt: "流水落花春去也，天上人间。",
+    note: "柔软的句子里有极深的时间感，适合黄昏读。",
+    mood: "春尽",
+  },
+  {
+    title: "临江仙",
+    dynasty: "明",
+    author: "杨慎",
+    excerpt: "滚滚长江东逝水，浪花淘尽英雄。",
+    note: "大江东去，得失都被放进更辽阔的尺度里。",
+    mood: "怀古",
+  },
+  {
+    title: "终南别业",
+    dynasty: "唐",
+    author: "王维",
+    excerpt: "行到水穷处，坐看云起时。",
+    note: "走到尽头时，停下来，往往就是新的开处。",
+    mood: "闲远",
+  },
+  {
+    title: "青玉案·元夕",
+    dynasty: "宋",
+    author: "辛弃疾",
+    excerpt: "众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。",
+    note: "热闹之外，自有一处更值得抵达的安静。",
+    mood: "灯夕",
+  },
+  {
+    title: "滕王阁序",
+    dynasty: "唐",
+    author: "王勃",
+    excerpt: "落霞与孤鹜齐飞，秋水共长天一色。",
+    note: "一句写尽开阔、明净和少年人的才气。",
+    mood: "高远",
+  },
+  {
+    title: "将进酒",
+    dynasty: "唐",
+    author: "李白",
+    excerpt: "天生我材必有用，千金散尽还复来。",
+    note: "豪气不是喧哗，是在低谷里仍相信自己的来路。",
+    mood: "豪兴",
+  },
+  {
+    title: "一剪梅",
+    dynasty: "宋",
+    author: "李清照",
+    excerpt: "云中谁寄锦书来？雁字回时，月满西楼。",
+    note: "轻轻一问，月色、书信与等待都落在纸上。",
+    mood: "月信",
+  },
+  {
+    title: "春江花月夜",
+    dynasty: "唐",
+    author: "张若虚",
+    excerpt: "江畔何人初见月？江月何年初照人？",
+    note: "把个人的一瞬，接到宇宙和时间的长河里。",
+    mood: "江月",
+  },
+];
+
+const fallbackPoem = poems[0];
+---
+
+<aside class="daily-poem-card" aria-label="每日诗词" aria-live="polite" data-daily-poem>
+  <div class="poem-seal" aria-hidden="true">
+    <span data-poem-mood>{fallbackPoem.mood}</span>
+  </div>
+  <div class="poem-content">
+    <div class="poem-meta">
+      <span data-poem-date>今日推荐</span>
+      <span data-poem-origin>{fallbackPoem.dynasty} · {fallbackPoem.author}</span>
+    </div>
+    <strong data-poem-title>{fallbackPoem.title}</strong>
+    <blockquote data-poem-excerpt>{fallbackPoem.excerpt}</blockquote>
+  </div>
+
+  <script type="application/json" data-poems-json is:inline set:html={JSON.stringify(poems)} />
+  <script is:inline data-astro-rerun>
+    (() => {
+      const root = document.querySelector("[data-daily-poem]");
+      if (!root || root.dataset.dailyPoemReady === "true") return;
+
+      root.dataset.dailyPoemReady = "true";
+
+      const dataNode = root.querySelector("[data-poems-json]");
+      const poems = JSON.parse(dataNode?.textContent ?? "[]");
+      if (poems.length === 0) return;
+
+      const today = new Date();
+      const localMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const dayNumber = Math.floor(localMidnight.getTime() / 86400000);
+      const poem = poems[((dayNumber % poems.length) + poems.length) % poems.length];
+      const dateLabel = new Intl.DateTimeFormat("zh-CN", {
+        month: "long",
+        day: "numeric",
+      }).format(today);
+
+      root.querySelector("[data-poem-date]").textContent = dateLabel;
+      root.querySelector("[data-poem-origin]").textContent = `${poem.dynasty} · ${poem.author}`;
+      root.querySelector("[data-poem-title]").textContent = poem.title;
+      root.querySelector("[data-poem-excerpt]").textContent = poem.excerpt;
+      root.querySelector("[data-poem-mood]").textContent = poem.mood;
+    })();
+  </script>
+</aside>

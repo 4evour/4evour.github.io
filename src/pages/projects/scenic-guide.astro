@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostList from "../../components/PostList.astro";
+import TechForceGraph from "../../components/TechForceGraph.astro";
 import { getPostsByProject, getPublishedPosts } from "../../utils/posts";
 
 const projectName = "灵山胜境智能导览系统";
@@ -24,6 +25,8 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <span>Live2D</span>
     </div>
   </section>
+
+  <TechForceGraph />
 
   <section class="container section">
     <div class="section-head">

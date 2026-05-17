@@ -1,0 +1,97 @@
+---
+const lines = [
+  "$ boot 4evour.blog",
+  "> load Go / RAG / Live2D notes",
+  "> trace scenic-guide architecture",
+  "> index posts with Pagefind",
+  "> ship static site to GitHub Pages",
+];
+---
+
+<div class="typed-terminal" data-typed-terminal data-lines={JSON.stringify(lines)} aria-label="首页打字机终端">
+  <div class="terminal-bar">
+    <span></span>
+    <span></span>
+    <span></span>
+    <strong>runtime.log</strong>
+  </div>
+  <pre><code data-typed-output>{lines.join("\n")}</code></pre>
+  <div class="typed-terminal-status" aria-hidden="true">
+    <span></span>
+    <span>live typing</span>
+  </div>
+</div>
+
+<script>
+  const setupTypedTerminals = () => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    document.querySelectorAll("[data-typed-terminal]").forEach((terminal) => {
+      if (!(terminal instanceof HTMLElement) || terminal.dataset.typedReady === "true") return;
+
+      const output = terminal.querySelector("[data-typed-output]");
+      if (!output) return;
+
+      const lines = JSON.parse(terminal.dataset.lines ?? "[]") as string[];
+      output.textContent = reduceMotion ? lines.join("\n") : "";
+      terminal.dataset.typedReady = "true";
+
+      if (reduceMotion) return;
+
+      const variants = [lines.join("\n"), `${lines.join("\n")}\n> ready for next deep dive`];
+      const cursor = document.createElement("span");
+      cursor.className = "terminal-cursor";
+      cursor.textContent = "█";
+
+      let variantIndex = 0;
+      let charIndex = 0;
+      let deleting = false;
+      let timeout = 0;
+
+      const paint = () => {
+        const text = variants[variantIndex] ?? "";
+        output.textContent = text.slice(0, charIndex);
+        output.append(cursor);
+      };
+
+      const tick = () => {
+        if (!terminal.isConnected) {
+          window.clearTimeout(timeout);
+          return;
+        }
+
+        const text = variants[variantIndex] ?? "";
+
+        if (!deleting && charIndex < text.length) {
+          charIndex += 1;
+          paint();
+          timeout = window.setTimeout(tick, 18);
+          return;
+        }
+
+        if (!deleting) {
+          deleting = true;
+          timeout = window.setTimeout(tick, 2400);
+          return;
+        }
+
+        if (charIndex > 0) {
+          charIndex -= 1;
+          paint();
+          timeout = window.setTimeout(tick, 10);
+          return;
+        }
+
+        deleting = false;
+        variantIndex = (variantIndex + 1) % variants.length;
+        timeout = window.setTimeout(tick, 260);
+      };
+
+      paint();
+      timeout = window.setTimeout(tick, 260);
+    });
+  };
+
+  setupTypedTerminals();
+  document.addEventListener("astro:page-load", setupTypedTerminals);
+</script>

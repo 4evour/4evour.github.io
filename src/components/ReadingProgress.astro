@@ -2,18 +2,35 @@
   <span data-reading-progress></span>
 </div>
 
-<script is:inline>
-  const progress = document.querySelector("[data-reading-progress]");
+<script is:inline data-astro-rerun>
+  (() => {
+    const progress = document.querySelector("[data-reading-progress]");
+    if (!progress || progress.dataset.readingProgressReady === "true") return;
 
-  const updateReadingProgress = () => {
-    if (!progress) return;
+    progress.dataset.readingProgressReady = "true";
+    const controller = new AbortController();
 
-    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-    const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
-    progress.style.transform = `scaleX(${Math.min(Math.max(ratio, 0), 1)})`;
-  };
+    const updateReadingProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+      progress.style.transform = `scaleX(${Math.min(Math.max(ratio, 0), 1)})`;
+    };
 
-  updateReadingProgress();
-  window.addEventListener("scroll", updateReadingProgress, { passive: true });
-  window.addEventListener("resize", updateReadingProgress);
+    updateReadingProgress();
+    window.addEventListener("scroll", updateReadingProgress, {
+      passive: true,
+      signal: controller.signal,
+    });
+    window.addEventListener("resize", updateReadingProgress, {
+      signal: controller.signal,
+    });
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        controller.abort();
+        delete progress.dataset.readingProgressReady;
+      },
+      { once: true },
+    );
+  })();
 </script>

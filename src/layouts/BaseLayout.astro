@@ -1,6 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 
 const {
@@ -20,6 +21,7 @@ const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{pageTitle}</title>
+    <ClientRouter />
     <script is:inline>
       const storedTheme = localStorage.getItem("theme");
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -38,108 +40,147 @@ const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
       </main>
       <Footer />
     </div>
-    <script is:inline>
-      document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
-        const current = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-        const next = current === "dark" ? "light" : "dark";
-        document.documentElement.dataset.theme = next;
-        localStorage.setItem("theme", next);
-      });
+    <script is:inline data-astro-rerun>
+      (() => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      document.documentElement.classList.add("page-ready");
+        const initThemeToggle = () => {
+          const toggle = document.querySelector("[data-theme-toggle]");
+          if (!toggle || toggle.dataset.themeReady === "true") return;
 
-      if (!reduceMotion && "IntersectionObserver" in window) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { rootMargin: "0px 0px -12% 0px", threshold: 0.16 },
-        );
+          toggle.dataset.themeReady = "true";
+          toggle.addEventListener("click", () => {
+            const current = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.dataset.theme = next;
+            localStorage.setItem("theme", next);
+          });
+        };
 
-        document
-          .querySelectorAll(".section, .post-item, .project-card, .article-body > *")
-          .forEach((element) => {
+        const initRevealOnScroll = () => {
+          document.documentElement.classList.add("page-ready");
+
+          if (window.__revealObserver) {
+            window.__revealObserver.disconnect();
+          }
+
+          const elements = document.querySelectorAll(".section, .post-item, .project-card, .article-body > *");
+
+          if (reduceMotion || !("IntersectionObserver" in window)) {
+            elements.forEach((element) => element.classList.add("is-visible"));
+            return;
+          }
+
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  observer.unobserve(entry.target);
+                }
+              });
+            },
+            { rootMargin: "0px 0px -12% 0px", threshold: 0.16 },
+          );
+
+          elements.forEach((element) => {
             element.classList.add("reveal-on-scroll");
             observer.observe(element);
           });
-      }
 
-      const canUseCustomCursor =
-        !reduceMotion &&
-        window.matchMedia("(pointer: fine)").matches &&
-        !window.matchMedia("(hover: none)").matches;
+          window.__revealObserver = observer;
+        };
 
-      if (canUseCustomCursor) {
-        const cursor = document.querySelector("[data-custom-cursor]");
-        const core = document.querySelector("[data-cursor-core]");
-        const trails = document.querySelector("[data-cursor-trails]");
-        const trailWords = ["4e", "Go", "RAG", "AI", "Live2D"];
-        let pointerX = window.innerWidth / 2;
-        let pointerY = window.innerHeight / 2;
-        let coreX = pointerX;
-        let coreY = pointerY;
-        let lastTrailX = pointerX;
-        let lastTrailY = pointerY;
-        let trailIndex = 0;
-        let frame = 0;
+        const initCustomCursor = () => {
+          if (window.__cursorCleanup) {
+            window.__cursorCleanup();
+          }
 
-        document.documentElement.classList.add("has-custom-cursor");
+          const canUseCustomCursor =
+            !reduceMotion &&
+            window.matchMedia("(pointer: fine)").matches &&
+            !window.matchMedia("(hover: none)").matches;
 
-        const paintCursor = () => {
-          coreX += (pointerX - coreX) * 0.28;
-          coreY += (pointerY - coreY) * 0.28;
-          core.style.transform = `translate3d(${coreX}px, ${coreY}px, 0)`;
+          if (!canUseCustomCursor) {
+            document.documentElement.classList.remove("has-custom-cursor");
+            return;
+          }
+
+          const cursor = document.querySelector("[data-custom-cursor]");
+          const core = document.querySelector("[data-cursor-core]");
+          const trails = document.querySelector("[data-cursor-trails]");
+          if (!cursor || !core || !trails) return;
+
+          const controller = new AbortController();
+          const trailWords = ["4e", "Go", "RAG", "AI", "Live2D"];
+          let pointerX = window.innerWidth / 2;
+          let pointerY = window.innerHeight / 2;
+          let coreX = pointerX;
+          let coreY = pointerY;
+          let lastTrailX = pointerX;
+          let lastTrailY = pointerY;
+          let trailIndex = 0;
+          let frame = 0;
+
+          document.documentElement.classList.add("has-custom-cursor");
+
+          const paintCursor = () => {
+            coreX += (pointerX - coreX) * 0.28;
+            coreY += (pointerY - coreY) * 0.28;
+            core.style.transform = `translate3d(${coreX}px, ${coreY}px, 0)`;
+            frame = requestAnimationFrame(paintCursor);
+          };
+
+          const createTrail = () => {
+            const distance = Math.hypot(pointerX - lastTrailX, pointerY - lastTrailY);
+            if (distance < 34) return;
+
+            const trail = document.createElement("span");
+            trail.className = "cursor-trail";
+            trail.textContent = trailWords[trailIndex % trailWords.length];
+            trail.style.left = `${pointerX}px`;
+            trail.style.top = `${pointerY}px`;
+            trail.style.setProperty("--trail-rotate", `${(trailIndex % 2 === 0 ? -1 : 1) * (8 + (trailIndex % 3) * 5)}deg`);
+            trails.append(trail);
+            trailIndex += 1;
+            lastTrailX = pointerX;
+            lastTrailY = pointerY;
+
+            window.setTimeout(() => trail.remove(), 780);
+          };
+
+          const setCursorPosition = (event) => {
+            pointerX = event.clientX;
+            pointerY = event.clientY;
+            cursor.classList.add("is-visible");
+            createTrail();
+          };
+
+          const syncInteractiveState = (event) => {
+            const target = event.target;
+            const interactive = target instanceof Element && target.closest("a, button, input, textarea, select, summary, [role='button']");
+            cursor.classList.toggle("is-interactive", Boolean(interactive));
+          };
+
+          window.addEventListener("pointermove", setCursorPosition, { passive: true, signal: controller.signal });
+          window.addEventListener("pointerover", syncInteractiveState, { passive: true, signal: controller.signal });
+          window.addEventListener("pointerdown", () => cursor.classList.add("is-pressed"), { signal: controller.signal });
+          window.addEventListener("pointerup", () => cursor.classList.remove("is-pressed"), { signal: controller.signal });
+          document.addEventListener("mouseleave", () => cursor.classList.remove("is-visible"), { signal: controller.signal });
+          document.addEventListener("mouseenter", () => cursor.classList.add("is-visible"), { signal: controller.signal });
           frame = requestAnimationFrame(paintCursor);
+
+          window.__cursorCleanup = () => {
+            controller.abort();
+            cancelAnimationFrame(frame);
+            document.documentElement.classList.remove("has-custom-cursor");
+          };
         };
 
-        const createTrail = () => {
-          const distance = Math.hypot(pointerX - lastTrailX, pointerY - lastTrailY);
-
-          if (distance < 34 || !trails) return;
-
-          const trail = document.createElement("span");
-          trail.className = "cursor-trail";
-          trail.textContent = trailWords[trailIndex % trailWords.length];
-          trail.style.left = `${pointerX}px`;
-          trail.style.top = `${pointerY}px`;
-          trail.style.setProperty("--trail-rotate", `${(trailIndex % 2 === 0 ? -1 : 1) * (8 + (trailIndex % 3) * 5)}deg`);
-          trails.append(trail);
-          trailIndex += 1;
-          lastTrailX = pointerX;
-          lastTrailY = pointerY;
-
-          window.setTimeout(() => trail.remove(), 780);
-        };
-
-        const setCursorPosition = (event) => {
-          pointerX = event.clientX;
-          pointerY = event.clientY;
-          cursor.classList.add("is-visible");
-          createTrail();
-        };
-
-        const syncInteractiveState = (event) => {
-          const target = event.target;
-          const interactive = target instanceof Element && target.closest("a, button, input, textarea, select, summary, [role='button']");
-          cursor.classList.toggle("is-interactive", Boolean(interactive));
-        };
-
-        window.addEventListener("pointermove", setCursorPosition, { passive: true });
-        window.addEventListener("pointerover", syncInteractiveState, { passive: true });
-        window.addEventListener("pointerdown", () => cursor.classList.add("is-pressed"));
-        window.addEventListener("pointerup", () => cursor.classList.remove("is-pressed"));
-        document.addEventListener("mouseleave", () => cursor.classList.remove("is-visible"));
-        document.addEventListener("mouseenter", () => cursor.classList.add("is-visible"));
-        frame = requestAnimationFrame(paintCursor);
-
-        window.addEventListener("pagehide", () => cancelAnimationFrame(frame), { once: true });
-      }
+        initThemeToggle();
+        initRevealOnScroll();
+        initCustomCursor();
+      })();
     </script>
   </body>
 </html>
