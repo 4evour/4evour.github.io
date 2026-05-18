@@ -30,4 +30,4 @@ draft: false
 ---
 ```
 
-旧 Gmeek 文章 `test1` 已迁移到 `/blog/test1/`，旧地址 `/post/test1.html` 会跳转到新地址。
+原 Gmeek 示例文章 `test1` 已从站内删除。后续从外站迁移文章时，优先将图片放到 `public/images/blog/<slug>/`，正文使用站内绝对路径引用。

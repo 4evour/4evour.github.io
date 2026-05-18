@@ -9,9 +9,10 @@
 - 本地目录：`D:\4evour_blog`
 - 当前目录已克隆 `https://github.com/4evour/4evour.github.io`。
 - 项目已从 Gmeek 迁移为 Astro 静态站点。
-- 原 Gmeek 文章 `test1` 已迁移到 `src/content/blog/test1.md`，新地址为 `/blog/test1/`。
-- 旧地址 `/post/test1.html` 通过 `public/post/test1.html` 跳转到新地址。
+- 原 Gmeek 示例文章 `test1` 已从站内删除，不再生成 `/blog/test1/` 和 `/post/test1.html`。
 - 已根据 `D:\go web 01` 的“灵山胜境景区智能导览系统”项目生成 3 篇项目复盘文章，覆盖整体架构、RAG 知识库和 Live2D 数字人集成，并归档到 `/projects/scenic-guide/` 项目页。
+- 已根据 `D:\Tour Pass` 生成 3 篇项目复盘文章，覆盖 C++ 行程规划服务整体架构、算法链路和工程化演示，并归档到 `/projects/tour-pass/` 项目页。
+- 已将 CSDN 旧文“2024 昆明邀请赛 VP 记录”迁移为算法文章 `/blog/kunming-2024-vp/`，并归入 `算法`、`ICPC`、`VP`、`C++` 标签。
 
 ## 拟采用技术栈
 
@@ -25,12 +26,15 @@
 - GitHub Actions：自动构建并部署到 GitHub Pages
 - 全站默认壁纸使用本地静态资源 `public/images/yukino-wallpaper.png`，由 `src/styles/global.css` 的 `--wallpaper-image` 和主题遮罩变量控制。
 - 首页与文章列表使用内容驱动的封面色块；文章 frontmatter 可通过 `featured`、`coverTone`、`coverLabel` 控制展示。
+- 算法文章仍使用通用 blog collection；“算法板块”通过 `算法` 标签页聚合，当前不维护独立分类 collection。
 - 全站动效使用原生 CSS + 少量内联脚本实现，包括页面进入、滚动出现、首屏视觉轻浮动和 hover 反馈，并尊重 `prefers-reduced-motion`。
 - 首页写作日历由已发布文章的 `pubDate` 自动生成，默认展示最新文章所在月份并高亮有文章的日期。
 - 首页每日诗词模块由 `src/components/DailyPoem.astro` 提供，内置公版古诗词条目，并在浏览器端按本地日期稳定轮换，无需每日重新构建。
 - 桌面端启用自定义鼠标样式：核心光点 + `4e`、`Go`、`RAG`、`AI`、`Live2D` 技术字符拖尾；触屏设备和减少动态设置下自动关闭。
 - 全站启用 Astro `ClientRouter` 页面转场；基础布局脚本使用可重复初始化方式，保障主题切换、滚动出现和自定义鼠标在转场后继续工作。
 - 首页使用 `TypedTerminal.astro` 的本地脚本展示循环终端打字机；项目详情页使用 `TechForceGraph.astro` + D3 force/drag/selection 展示带扫描光和拖拽提示的技术星图。两者均尊重 `prefers-reduced-motion`，并限制动画/模拟密度。关于页曾尝试物理标签墙，因视觉效果不佳已移除。
+- 项目页当前包含两个项目归档：“灵山胜境智能导览系统”和 “Tour Pass”；项目文章通过 frontmatter 的 `project` 字段聚合到对应归档页。
+- 关于页已从占位内容升级为正式个人介绍入口，覆盖技术方向、站内项目导览、GitHub 与 RSS 入口。
 
 ## 关键约定
 
@@ -38,6 +42,7 @@
 - 仅记录长期有效的项目事实、架构决策、命令和风险。
 - 迁移时优先保留既有文章链接或提供重定向，避免旧链接失效。
 - 视觉升级优先保持静态、轻量、可维护；封面视觉由 CSS 与文章元数据生成，站点背景优先使用本地静态素材，避免不可控远程素材。
+- 从外站迁移文章图片时优先落到 `public/images/blog/<slug>/`，正文使用站内绝对路径引用，避免依赖远程防盗链和外部资源稳定性。
 
 ## 运行与测试方式
 

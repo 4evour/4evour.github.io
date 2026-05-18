@@ -2,8 +2,11 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPostsByProject, getPublishedPosts } from "../utils/posts";
 
-const projectName = "灵山胜境智能导览系统";
-const posts = getPostsByProject(await getPublishedPosts(), projectName);
+const posts = await getPublishedPosts();
+const scenicGuideName = "灵山胜境智能导览系统";
+const scenicGuidePosts = getPostsByProject(posts, scenicGuideName);
+const tourPassName = "Tour Pass";
+const tourPassPosts = getPostsByProject(posts, tourPassName);
 ---
 
 <BaseLayout title="项目" description="4evour 的项目与作品。">
@@ -13,7 +16,7 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <h1>项目</h1>
       <p>把做过的项目整理成可以继续阅读的入口，而不只是放几个仓库链接。</p>
     </div>
-    <div class="project-index-mark" aria-hidden="true">01</div>
+      <div class="project-index-mark" aria-hidden="true">02</div>
   </section>
   <section class="container section">
     <a class="project-card" href="/projects/scenic-guide/">
@@ -22,7 +25,7 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       </div>
       <div>
         <p class="eyebrow">Case study</p>
-        <h2>{projectName}</h2>
+        <h2>{scenicGuideName}</h2>
         <p>
           一个 Go + Vue + RAG + Live2D 的景区智能导览系统，包含问答、知识库、
           管理后台、数据看板和数字人交互链路。
@@ -34,7 +37,28 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
           <span class="tag">Live2D</span>
         </div>
       </div>
-      <span class="post-meta">{posts.length} 篇文章</span>
+      <span class="post-meta">{scenicGuidePosts.length} 篇文章</span>
+    </a>
+
+    <a class="project-card project-card-tour" href="/projects/tour-pass/">
+      <div class="project-card-visual" aria-hidden="true">
+        <span>Tour</span>
+      </div>
+      <div>
+        <p class="eyebrow">Case study</p>
+        <h2>{tourPassName}</h2>
+        <p>
+          一个 C++17 城市自由行行程规划算法服务，覆盖 POI 图建模、最短路、
+          Beam Search、候选对比、BM25 检索和本地 Web 演示台。
+        </p>
+        <div class="tag-list">
+          <span class="tag">C++</span>
+          <span class="tag">算法</span>
+          <span class="tag">Beam Search</span>
+          <span class="tag">BM25</span>
+        </div>
+      </div>
+      <span class="post-meta">{tourPassPosts.length} 篇文章</span>
     </a>
   </section>
 </BaseLayout>

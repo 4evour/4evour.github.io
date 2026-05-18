@@ -3,17 +3,94 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="关于" description="关于 4evour 和这个博客。">
-  <section class="container page-title">
-    <p class="eyebrow">About</p>
-    <h1>关于</h1>
-    <p>这里会用来放个人介绍、技术方向、联系方式和这个博客的长期说明。</p>
-  </section>
-  <section class="article">
-    <div class="article-body">
+  <section class="container about-hero">
+    <div>
+      <p class="eyebrow">About</p>
+      <h1>4evour</h1>
       <p>
-        这个博客正在从 Gmeek 迁移到 Astro。第一版先建立稳定、简洁、可维护的写作空间，
-        之后再逐步补充真实介绍、项目经历和更完整的文章归档。
+        我把这里当作一个长期维护的工程笔记站：记录项目从想法、架构、代码到演示的完整过程，
+        尤其关注 AI 应用、算法服务、前后端工程化，以及那些真正决定系统能不能稳定跑起来的细节。
       </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/projects/">看项目</a>
+        <a class="button" href="/blog/">读文章</a>
+      </div>
+    </div>
+    <aside class="about-signal" aria-label="个人技术方向概览">
+      <span>Full-stack</span>
+      <span>AI Systems</span>
+      <span>Algorithms</span>
+      <span>Writing</span>
+    </aside>
+  </section>
+
+  <section class="container section about-grid">
+    <div class="about-copy">
+      <p class="eyebrow">Focus</p>
+      <h2>我最近在做什么</h2>
+      <p>
+        最近的项目主要围绕两条线展开：一条是面向真实业务场景的 AI 应用工程，
+        例如 RAG 知识库、OpenAI 兼容接口、数字人交互和后台管理；另一条是更偏算法和系统表达的服务，
+        例如用 C++ 实现城市自由行规划、图搜索、Beam Search、多候选对比和可视化演示台。
+      </p>
+      <p>
+        我写文章时不太想只写“用了什么技术栈”。更想把为什么这样拆模块、失败时怎么兜底、
+        怎么验证数据和接口、怎么把一个 demo 做到可解释这些过程留下来。
+      </p>
+    </div>
+    <div class="about-list" aria-label="技术方向">
+      <article>
+        <span>01</span>
+        <h3>AI 应用工程</h3>
+        <p>RAG、Embedding/BM25 兜底、OpenAI-compatible API、SSE 流式响应、数字人接入。</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>算法服务</h3>
+        <p>C++17、Dijkstra/A*、Beam Search、Pareto 非支配排序、评分拆解和性能基线。</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>前后端系统</h3>
+        <p>Go/Gin、Vue、Astro、静态站点、管理后台、可视化页面和可维护的部署链路。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="container section about-projects">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Projects</p>
+        <h2>现在站内最完整的两组项目</h2>
+        <p>它们分别代表我对 AI 应用系统和算法工程服务的阶段性整理。</p>
+      </div>
+    </div>
+    <div class="about-project-links">
+      <a href="/projects/scenic-guide/">
+        <span>Go / Vue / RAG / Live2D</span>
+        <strong>灵山胜境智能导览系统</strong>
+        <p>景区问答、知识库、后台管理、数据看板、OpenAI 兼容接口和数字人交互链路。</p>
+      </a>
+      <a href="/projects/tour-pass/">
+        <span>C++17 / Graph / Beam Search</span>
+        <strong>Tour Pass</strong>
+        <p>城市自由行规划算法服务，覆盖 POI 图建模、候选路线、检索、解释和本地演示台。</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="container section about-contact">
+    <div>
+      <p class="eyebrow">Contact</p>
+      <h2>可以从这些地方继续看我</h2>
+      <p>
+        这个站点会优先更新项目复盘和工程笔记。更完整的代码、提交记录和后续项目，
+        可以从 GitHub 继续追踪。
+      </p>
+    </div>
+    <div class="hero-actions">
+      <a class="button primary" href="https://github.com/4evour">GitHub</a>
+      <a class="button" href="/rss.xml">RSS</a>
     </div>
   </section>
 </BaseLayout>
