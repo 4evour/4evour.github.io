@@ -12,6 +12,7 @@
 - 原 Gmeek 示例文章 `test1` 已从站内删除，不再生成 `/blog/test1/` 和 `/post/test1.html`。
 - 已根据 `D:\go web 01` 的“灵山胜境景区智能导览系统”项目生成 3 篇项目复盘文章，覆盖整体架构、RAG 知识库和 Live2D 数字人集成，并归档到 `/projects/scenic-guide/` 项目页。
 - 已根据 `D:\Tour Pass` 生成 3 篇项目复盘文章，覆盖 C++ 行程规划服务整体架构、算法链路和工程化演示，并归档到 `/projects/tour-pass/` 项目页。
+- Tour Pass 文章已同步项目 v1.9 运行时能力：请求 ID/耗时/安全头、显式线程池、热点缓存、`/trip/jobs` 异步规划任务、`/metrics` 指标和并发性能基线。
 - 已将 CSDN 旧文“2024 昆明邀请赛 VP 记录”迁移为算法文章 `/blog/kunming-2024-vp/`，并归入 `算法`、`ICPC`、`VP`、`C++` 标签。
 
 ## 拟采用技术栈
@@ -31,7 +32,7 @@
 - 首页写作日历由已发布文章的 `pubDate` 自动生成，默认展示最新文章所在月份并高亮有文章的日期。
 - 首页每日诗词模块由 `src/components/DailyPoem.astro` 提供，内置公版古诗词条目，并在浏览器端按本地日期稳定轮换，无需每日重新构建。
 - 桌面端启用自定义鼠标样式：核心光点 + `4e`、`Go`、`RAG`、`AI`、`Live2D` 技术字符拖尾；触屏设备和减少动态设置下自动关闭。
-- 全站启用 Astro `ClientRouter` 页面转场；基础布局脚本使用可重复初始化方式，保障主题切换、滚动出现和自定义鼠标在转场后继续工作。
+- 全站启用 Astro `ClientRouter` 页面转场；基础布局脚本使用可重复初始化方式，并在 `astro:before-swap` 将当前主题同步到新文档，保障主题切换、滚动出现和自定义鼠标在转场后继续工作。
 - 首页使用 `TypedTerminal.astro` 的本地脚本展示循环终端打字机；项目详情页使用 `TechForceGraph.astro` + D3 force/drag/selection 展示带扫描光和拖拽提示的技术星图。两者均尊重 `prefers-reduced-motion`，并限制动画/模拟密度。关于页曾尝试物理标签墙，因视觉效果不佳已移除。
 - 项目页当前包含两个项目归档：“灵山胜境智能导览系统”和 “Tour Pass”；项目文章通过 frontmatter 的 `project` 字段聚合到对应归档页。
 - 关于页已从占位内容升级为正式个人介绍入口，覆盖技术方向、站内项目导览、GitHub 与 RSS 入口。
