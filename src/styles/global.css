@@ -1428,6 +1428,46 @@ button {
   font-weight: 760;
 }
 
+.proof-strip {
+  padding-top: 2rem;
+}
+
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.proof-grid figure {
+  display: grid;
+  grid-column: span 3;
+  gap: 0.7rem;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.proof-grid figure:first-child {
+  grid-column: span 6;
+}
+
+.proof-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border);
+}
+
+.proof-grid figcaption {
+  padding: 0 1rem 1rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 760;
+}
+
 .tech-graph-section {
   padding-top: 2rem;
 }
@@ -2056,6 +2096,15 @@ button {
   .about-grid,
   .about-project-links {
     grid-template-columns: 1fr;
+  }
+
+  .proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-grid figure,
+  .proof-grid figure:first-child {
+    grid-column: auto;
   }
 
   .project-index-title {

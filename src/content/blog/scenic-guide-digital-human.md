@@ -16,6 +16,10 @@ draft: false
 
 最后这条链路里用到了 Go/Gin、RAG、OpenAI-compatible API、SSE、WebSocket 代理、Open-LLM-VTuber、Vue、PixiJS 和 pixi-live2d-display。
 
+这张图来自本地真实运行的数字人备用视图：页面里有 Live2D 舞台、打断和重连控制、交互记录，以及 Open-LLM-VTuber 未启动时的连接失败状态。它不是要替代 Open-LLM-VTuber 主服务，而是给主系统提供一个可演示、可观测的前端入口。
+
+![灵山智能导览 Live2D 数字人备用视图](/images/blog/scenic-guide/digital-human.png)
+
 ## 为什么接 Open-LLM-VTuber
 
 我没有从零写语音和数字人运行时，而是接了 Open-LLM-VTuber。
@@ -27,6 +31,8 @@ draft: false
 Open-LLM-VTuber 负责“怎么说、怎么动、怎么显示”。
 
 Go 后端负责“答什么、从哪里查、怎么记录、有没有路线建议”。
+
+我的定制层则负责景区品牌外壳、连接状态、麦克风权限提示、流式状态、打断/重试按钮和 trace_id 展示，让数字人入口更像主系统的一部分。
 
 这个边界挺重要。否则数字人一接进来，后端很容易被音频流、模型状态、前端动画拖着走。
 

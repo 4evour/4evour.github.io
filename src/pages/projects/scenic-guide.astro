@@ -14,7 +14,7 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <p class="eyebrow">Project archive</p>
       <h1>{projectName}</h1>
       <p>
-        这是我把 Go/Gin、Vue、RAG 知识库、OpenAI 兼容接口、数据看板和 Live2D
+        这是我把 Go/Gin、PostgreSQL/GORM、Vue、RAG 知识库、OpenAI 兼容接口、数据看板和 Live2D
         数字人串到一起的一次项目实践。
       </p>
     </div>
@@ -22,7 +22,39 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <span>Go / Gin</span>
       <span>Vue</span>
       <span>RAG</span>
-      <span>Live2D</span>
+      <span>PostgreSQL</span>
+    </div>
+  </section>
+
+  <section class="container section proof-strip" aria-label="项目真实页面截图">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Runtime proof</p>
+        <h2>真实页面截图</h2>
+        <p>这些截图来自本地启动后的灵山导览系统，覆盖游客端、数据大屏、地图、管理后台和数字人备用视图。</p>
+      </div>
+    </div>
+    <div class="proof-grid">
+      <figure>
+        <img src="/images/blog/scenic-guide/home.png" alt="灵山智能导览游客端首页截图" loading="lazy" />
+        <figcaption>游客端首页</figcaption>
+      </figure>
+      <figure>
+        <img src="/images/blog/scenic-guide/dashboard.png" alt="灵山智能导览数据大屏截图" loading="lazy" />
+        <figcaption>运营数据大屏</figcaption>
+      </figure>
+      <figure>
+        <img src="/images/blog/scenic-guide/map.png" alt="灵山智能导览游客地图截图" loading="lazy" />
+        <figcaption>游客实时地图</figcaption>
+      </figure>
+      <figure>
+        <img src="/images/blog/scenic-guide/admin.png" alt="灵山智能导览管理后台知识库截图" loading="lazy" />
+        <figcaption>知识库管理后台</figcaption>
+      </figure>
+      <figure>
+        <img src="/images/blog/scenic-guide/digital-human.png" alt="灵山智能导览数字人备用视图截图" loading="lazy" />
+        <figcaption>数字人备用视图</figcaption>
+      </figure>
     </div>
   </section>
 

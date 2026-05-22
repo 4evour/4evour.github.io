@@ -1,6 +1,6 @@
 ---
 title: "我在景区导览项目里怎么做 RAG"
-description: "记录灵山胜境智能导览系统里的 RAG 实现：通义千问 Embedding、中文 2/3-gram BM25、缓存、知识库上传和离线评估。"
+description: "记录灵山胜境智能导览系统里的 RAG 实现：DashScope Embedding、BM25/词面兜底、缓存、知识库上传、准生产规模验证和离线评估。"
 pubDate: 2026-05-16
 tags: ["RAG", "Go", "AI", "知识库"]
 project: "灵山胜境智能导览系统"
@@ -16,6 +16,10 @@ draft: false
 
 所以我做 RAG 时没有只停在“调一个大模型 API”。我更关心几件事：知识怎么导入，向量服务不可用怎么办，中文检索怎么兜底，怎么缓存，怎么评估，管理员怎么维护知识。
 
+这张图是本地真实启动后的管理后台知识库页面，能看到默认知识片段已经通过后端接口进入后台列表，而不是只写在静态文档里。
+
+![灵山智能导览管理后台知识库页面](/images/blog/scenic-guide/admin.png)
+
 ## 知识不是硬编码在提示词里
 
 项目里有一个 `knowledge/` 目录，默认放了灵山胜境相关语料：
@@ -23,9 +27,11 @@ draft: false
 - `lingshan_corpus.md`
 - `lingshan_chunks.jsonl`
 - `lingshan_eval_qa.json`
+- `lingshan_scale_3000.jsonl`
+- `lingshan_eval_300.json`
 - `lingshan_rag_guide.md`
 
-服务启动时会检查数据库里的知识片段数量。如果为空，就自动从 `lingshan_chunks.jsonl` 导入。这样第一次跑项目时就能问问题，不需要先手动往后台录入一遍知识。
+服务启动时会检查数据库里的知识片段数量。如果为空，就自动从 `lingshan_chunks.jsonl` 导入。这样第一次跑项目时就能问问题，不需要先手动往后台录入一遍知识。当前基础样例是 32 个知识切片和 5 条问答的 smoke test，另外还准备了 3000 个切片和 300 条问答的准生产规模验证集。
 
 知识片段进入数据库前会做标准化：ID 为空时用 SHA1 派生一个稳定 ID，标题为空时截取正文前 24 个字符，来源为空时默认记成 `admin`，metadata 为空就补空对象。
 
@@ -45,15 +51,15 @@ type EmbeddingProvider interface {
 
 现在主要有两个实现思路。
 
-配置了通义千问 Embedding API Key 时，用 QwenEmbeddingProvider 调 `/embeddings`，拿真实向量做余弦相似度检索。HTTP client 设置了 30 秒超时和连接复用，避免每次请求都重新建连接。
+配置了 DashScope Embedding API Key 时，用 `text-embedding-v2` 生成 1536 维向量，再用余弦相似度做检索。HTTP client 设置了 30 秒超时和连接复用，避免每次请求都重新建连接。
 
-没有 Embedding Key，或者 provider 不可用时，就退回 BM25FallbackProvider。
+没有 Embedding Key，或者 provider 不可用时，就退回 BM25/词面本地检索。
 
 我一开始差点只做向量检索，后来觉得这会让项目太脆弱。作品集项目经常要在不同机器上跑，API Key、网络、额度都可能出问题。如果没有本地兜底，RAG 就会变成“配置齐全时才有用”。
 
 ## 中文 BM25 怎么做
 
-这个 BM25 兜底不是完整搜索引擎，但针对中文问答做了简单处理。
+这个 BM25/词面兜底不是完整搜索引擎，但针对中文问答做了简单处理。
 
 `Tokenize` 会先把文本转小写，然后对 rune 做 2-gram 和 3-gram。这样“灵山大佛”“九龙灌浴”这类中文短语，不需要依赖复杂分词器也能被切出一些可匹配片段。
 
@@ -110,7 +116,7 @@ go run ./cmd/rag-eval -format text
 go run ./cmd/rag-eval -format json
 ```
 
-这个命令会用 `modernc.org/sqlite` 在内存里起一个临时 SQLite，AutoMigrate 后导入知识库，然后跑 `lingshan_eval_qa.json` 里的问答集。
+这个命令会用 `modernc.org/sqlite` 在内存里起一个临时 SQLite，AutoMigrate 后导入知识库，然后跑 `lingshan_eval_qa.json` 或 `lingshan_eval_300.json` 里的问答集。
 
 评估不是用大模型打分，而是看回答里有没有覆盖预期关键词。报告里会输出：
 
@@ -119,8 +125,13 @@ go run ./cmd/rag-eval -format json
 - 失败数
 - 通过率
 - 平均关键词覆盖率
+- Recall@K
+- MRR@K
+- 检索耗时 p50/p95
 - 缺失关键词
 - 回答预览
+
+当前 3000 切片 / 300 问答的本地 BM25/词面检索基准是：Recall@8 100.0%、MRR@8 0.859、关键词覆盖率 100.0%、纯检索 p50/p95 约 64ms/69ms。这个指标只覆盖本地数据库、检索和缓存链路，不包含外部大模型端到端吞吐。
 
 这个评估方式不完美，但它有一个优点：稳定、便宜、可自动化。至少我改知识库、改 BM25、改提示词后，可以知道有没有把一些基础问题搞坏。
 
