@@ -1428,6 +1428,44 @@ button {
   font-weight: 760;
 }
 
+.evidence-strip {
+  padding-bottom: 2rem;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.evidence-grid article {
+  min-height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.15rem;
+  background: var(--surface);
+}
+
+.evidence-grid span {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.evidence-grid strong {
+  display: block;
+  margin-top: 0.7rem;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  line-height: 1.15;
+}
+
+.evidence-grid p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+}
+
 .proof-strip {
   padding-top: 2rem;
 }
@@ -2029,6 +2067,7 @@ button {
 
   .hero-stats,
   .post-list-cards,
+  .evidence-grid,
   .spotlight-map,
   .visual-layers {
     grid-template-columns: 1fr;

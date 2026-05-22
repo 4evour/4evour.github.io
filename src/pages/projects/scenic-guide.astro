@@ -14,8 +14,8 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <p class="eyebrow">Project archive</p>
       <h1>{projectName}</h1>
       <p>
-        这是我把 Go/Gin、PostgreSQL/GORM、Vue、RAG 知识库、OpenAI 兼容接口、数据看板和 Live2D
-        数字人串到一起的一次项目实践。
+        这是我把 Go/Gin、PostgreSQL/GORM、Vue、RAG 知识库、Docker 复现、OpenAI 兼容接口、数据看板和 Live2D
+        数字人串到一起的一次项目实践。最新口径加入了真实资料评估集和数字人联调检查，不把合成闭集指标包装成线上结果。
       </p>
     </div>
     <div class="project-detail-panel" aria-label="项目技术栈">
@@ -26,12 +26,39 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
     </div>
   </section>
 
+  <section class="container section evidence-strip" aria-label="项目可信度证据">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Evidence</p>
+        <h2>可复现证据</h2>
+        <p>项目现在把运行、评估和联调边界写成了可复现文档，避免只靠截图讲故事。</p>
+      </div>
+    </div>
+    <div class="evidence-grid">
+      <article>
+        <span>RAG real eval</span>
+        <strong>122 切片 / 203 问答</strong>
+        <p>真实资料 retrieval-only bench：Recall@8 85.5%、MRR@8 0.749、关键词覆盖率 94.3%，不包含生成、ASR 或 TTS。</p>
+      </article>
+      <article>
+        <span>Docker reproduce</span>
+        <strong>PostgreSQL 主路径</strong>
+        <p>通过 Docker Compose 启动 PostgreSQL 16 和 Go 服务；无外部 AI Key 时仍可跑页面和 BM25/词面检索评估。</p>
+      </article>
+      <article>
+        <span>VTuber integration</span>
+        <strong>协议适配清单</strong>
+        <p>数字人部分明确验证 OpenAI 兼容接口、SSE、WebSocket、打断/重连、麦克风权限和 trace 状态展示。</p>
+      </article>
+    </div>
+  </section>
+
   <section class="container section proof-strip" aria-label="项目真实页面截图">
     <div class="section-head">
       <div>
         <p class="eyebrow">Runtime proof</p>
         <h2>真实页面截图</h2>
-        <p>这些截图来自本地启动后的灵山导览系统，覆盖游客端、数据大屏、地图、管理后台和数字人备用视图。</p>
+        <p>这些截图来自最新代码本地启动后的灵山导览系统，覆盖游客端、数据大屏、地图、管理后台和数字人备用视图。</p>
       </div>
     </div>
     <div class="proof-grid">

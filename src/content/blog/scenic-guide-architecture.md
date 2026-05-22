@@ -1,6 +1,6 @@
 ---
 title: "我做了一个景区智能导览系统"
-description: "记录灵山胜境智能导览系统的整体搭建过程：Go/Gin、PostgreSQL/SQLite、GORM、Vue、RAG、鉴权、安全边界和数字人入口。"
+description: "记录灵山胜境智能导览系统的整体搭建过程：Go/Gin、PostgreSQL/SQLite、GORM、Vue、RAG、Docker 复现、鉴权、安全边界和数字人入口。"
 pubDate: 2026-05-16
 tags: ["Go", "Vue", "项目复盘", "智能导览"]
 project: "灵山胜境智能导览系统"
@@ -16,7 +16,7 @@ draft: false
 
 我希望它看起来不是“能跑的 demo”，而是一个有边界、有兜底、有维护入口的小系统。
 
-下面几张图来自这套系统在本地真实启动后的页面截图，后端使用 demo seed 写入演示数据，页面通过实际 API 读取内容。
+下面几张图来自这套系统最新版本在本地真实启动后的页面截图，后端使用 demo seed 写入演示数据，页面通过实际 API 读取内容。它仍然是作品集/课程项目，不是公网商业系统；我更想展示的是可复现、可验证和边界清楚。
 
 ![灵山智能导览游客端首页](/images/blog/scenic-guide/home.png)
 
@@ -49,6 +49,8 @@ draft: false
 第二，HTTP 服务不是直接 `r.Run()`。我改成了 `http.Server`，设置了 `ReadHeaderTimeout`、`ReadTimeout`、`WriteTimeout`、`IdleTimeout` 和 `MaxHeaderBytes`。这些不是为了炫配置，而是为了让服务在面对慢请求、异常连接时不至于太裸奔。
 
 第三，关闭服务时用了 10 秒超时的 graceful shutdown。对一个小项目来说这可能有点认真，但我觉得这是写 Web 服务时应该养成的习惯。
+
+最新版本还把本地复现路径补齐了：仓库提供 `Dockerfile`、`.dockerignore` 和 `docker-compose.yml`，默认用 PostgreSQL 16 跑主数据库；没有 DeepSeek、DashScope 或语音服务 Key 时，页面和本地 BM25/词面检索评估仍然能跑。这样项目展示不依赖“我本机刚好配好了所有服务”，评审也能按 README 复现基础链路。
 
 ## 分层不是为了好看
 
@@ -128,6 +130,8 @@ npm run build
 另外还有 `scripts/check-secrets.mjs` 做密钥扫描。因为这个项目涉及 AI API Key、Embedding Key、JWT Secret，配置泄露风险比普通前端项目更高。
 
 中文项目还有一个很烦的问题：Windows PowerShell 输出有时会把 UTF-8 中文显示成乱码。我没有把它当成玄学处理，而是加了 `.editorconfig` 和编码检查脚本，尽量把“文件坏了”和“终端显示坏了”分开。
+
+现在项目里也有一个更接近“交付检查”的 `make check`：把 Go test/vet、前端类型检查、编码检查和构建串起来。RAG 评估报告、真实资料数据边界说明、数字人联调检查清单也放进了 `docs/` 和 `knowledge/`，这样别人看到的不只是几张页面截图，还有复现命令、指标解释和局限说明。
 
 ## 这个项目真正难的地方
 

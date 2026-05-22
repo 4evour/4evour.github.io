@@ -1,6 +1,6 @@
 ---
 title: "我在景区导览项目里怎么做 RAG"
-description: "记录灵山胜境智能导览系统里的 RAG 实现：DashScope Embedding、BM25/词面兜底、缓存、知识库上传、准生产规模验证和离线评估。"
+description: "记录灵山胜境智能导览系统里的 RAG 实现：DashScope Embedding、BM25/词面兜底、缓存、知识库上传、真实资料评估集和离线评估报告。"
 pubDate: 2026-05-16
 tags: ["RAG", "Go", "AI", "知识库"]
 project: "灵山胜境智能导览系统"
@@ -29,9 +29,11 @@ draft: false
 - `lingshan_eval_qa.json`
 - `lingshan_scale_3000.jsonl`
 - `lingshan_eval_300.json`
+- `knowledge/real/lingshan_real_chunks.jsonl`
+- `knowledge/real/lingshan_real_eval_open.json`
 - `lingshan_rag_guide.md`
 
-服务启动时会检查数据库里的知识片段数量。如果为空，就自动从 `lingshan_chunks.jsonl` 导入。这样第一次跑项目时就能问问题，不需要先手动往后台录入一遍知识。当前基础样例是 32 个知识切片和 5 条问答的 smoke test，另外还准备了 3000 个切片和 300 条问答的准生产规模验证集。
+服务启动时会检查数据库里的知识片段数量。如果为空，就自动从 `lingshan_chunks.jsonl` 导入。这样第一次跑项目时就能问问题，不需要先手动往后台录入一遍知识。当前基础样例是 32 个知识切片和 5 条问答的 smoke test；3000 个切片和 300 条问答是合成闭集验证集，只用于内部回归。最新主口径改为 `knowledge/real/` 下的真实资料评估集：122 个真实资料切片、203 条独立评测问答。
 
 知识片段进入数据库前会做标准化：ID 为空时用 SHA1 派生一个稳定 ID，标题为空时截取正文前 24 个字符，来源为空时默认记成 `admin`，metadata 为空就补空对象。
 
@@ -116,7 +118,7 @@ go run ./cmd/rag-eval -format text
 go run ./cmd/rag-eval -format json
 ```
 
-这个命令会用 `modernc.org/sqlite` 在内存里起一个临时 SQLite，AutoMigrate 后导入知识库，然后跑 `lingshan_eval_qa.json` 或 `lingshan_eval_300.json` 里的问答集。
+这个命令会用 `modernc.org/sqlite` 在内存里起一个临时 SQLite，AutoMigrate 后导入知识库，然后跑 `lingshan_eval_qa.json`、`lingshan_eval_300.json`，或者 `knowledge/real/` 下的真实资料评估集。
 
 评估不是用大模型打分，而是看回答里有没有覆盖预期关键词。报告里会输出：
 
@@ -131,7 +133,11 @@ go run ./cmd/rag-eval -format json
 - 缺失关键词
 - 回答预览
 
-当前 3000 切片 / 300 问答的本地 BM25/词面检索基准是：Recall@8 100.0%、MRR@8 0.859、关键词覆盖率 100.0%、纯检索 p50/p95 约 64ms/69ms。这个指标只覆盖本地数据库、检索和缓存链路，不包含外部大模型端到端吞吐。
+现在我不再把 3000/300 合成闭集当成主要卖点。它的 Recall@8 100.0% 只能说明固定合成数据上的检索链路可运行、可回归，不能外推到真实游客开放问法。
+
+更可信的口径是 `knowledge/real/` 真实资料评估：122 个真实资料切片、203 条独立评测问答，并发 16、repeat 3 后一共 609 次 retrieval-only 评估。本地 BM25/词面检索结果为 Recall@8 85.5%、MRR@8 0.749、关键词覆盖率 94.3%、纯检索 p50/p95 约 7ms/10ms。启用 DashScope `text-embedding-v2` 后，同口径 Recall@8 和 MRR 保持一致，检索 p50/p95 约 69ms/80ms。这个指标仍然只覆盖检索链路，不包含 DeepSeek 生成、ASR 或 TTS。
+
+我把这些结果写进了 `docs/rag-eval-report.md`，也在 `knowledge/DATASET.md` 里说明了基础 smoke、合成闭集和真实资料评估集各自能证明什么、不能证明什么。这个边界比一个漂亮的百分比更重要。
 
 这个评估方式不完美，但它有一个优点：稳定、便宜、可自动化。至少我改知识库、改 BM25、改提示词后，可以知道有没有把一些基础问题搞坏。
 
