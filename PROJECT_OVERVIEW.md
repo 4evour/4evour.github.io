@@ -11,7 +11,7 @@
 - 项目已从 Gmeek 迁移为 Astro 静态站点。
 - 原 Gmeek 示例文章 `test1` 已从站内删除，不再生成 `/blog/test1/` 和 `/post/test1.html`。
 - 已根据 `D:\go web 01` 的“灵山胜境景区智能导览系统”项目生成 3 篇项目复盘文章，覆盖整体架构、RAG 知识库和 Live2D 数字人集成，并归档到 `/projects/scenic-guide/` 项目页。
-- 灵山胜境项目页和相关文章已加入真实本地运行截图，图片位于 `public/images/blog/scenic-guide/`，覆盖游客端首页、数据大屏、游客地图、管理后台和数字人备用视图；最新内容同步了真实资料 RAG 评估集、Docker Compose 复现路径和数字人联调检查口径。
+- 灵山胜境项目页和相关文章已加入真实本地运行截图，图片位于 `public/images/blog/scenic-guide/`，覆盖游客端首页、数据大屏、游客地图、管理后台和 Live2D 数字人舞台；最新内容同步了真实资料 RAG 评估集、Docker Compose 复现路径和数字人联调检查口径。
 - 已根据 `D:\Tour Pass` 生成 3 篇项目复盘文章，覆盖 C++ 行程规划服务整体架构、算法链路和工程化演示，并归档到 `/projects/tour-pass/` 项目页。
 - Tour Pass 文章已同步项目 v1.9 运行时能力：请求 ID/耗时/安全头、显式线程池、热点缓存、`/trip/jobs` 异步规划任务、`/metrics` 指标和并发性能基线。
 - 已将 CSDN 旧文“2024 昆明邀请赛 VP 记录”迁移为算法文章 `/blog/kunming-2024-vp/`，并归入 `算法`、`ICPC`、`VP`、`C++` 标签。

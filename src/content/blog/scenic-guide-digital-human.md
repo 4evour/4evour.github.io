@@ -16,9 +16,9 @@ draft: false
 
 最后这条链路里用到了 Go/Gin、RAG、OpenAI-compatible API、SSE、WebSocket 代理、Open-LLM-VTuber、Vue、PixiJS 和 pixi-live2d-display。
 
-这张图来自最新版本本地真实运行的数字人备用视图：页面里有 Live2D 舞台、打断和重连控制、交互记录，以及 Open-LLM-VTuber 未启动时的连接失败状态。它不是要替代 Open-LLM-VTuber 主服务，而是给主系统提供一个可演示、可观测的前端入口。
+这张图来自最新版本本地真实运行的数字人舞台：页面里保留了 Live2D 展示、状态栏和前端控制区域。它不是要替代 Open-LLM-VTuber 主服务，而是给主系统提供一个可演示、可观测的前端入口。
 
-![灵山智能导览 Live2D 数字人备用视图](/images/blog/scenic-guide/digital-human.png)
+![灵山智能导览 Live2D 数字人舞台](/images/blog/scenic-guide/digital-human.png)
 
 ## 为什么接 Open-LLM-VTuber
 
