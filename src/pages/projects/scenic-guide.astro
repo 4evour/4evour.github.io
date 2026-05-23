@@ -53,6 +53,23 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
     </div>
   </section>
 
+  <section class="container section demo-video-section" aria-label="项目演示视频">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Demo video</p>
+        <h2>本地演示视频</h2>
+        <p>视频串起游客端、数据看板、管理后台、地图、数字人导览和 RAG 评估边界，展示这套系统的实际运行路径。</p>
+      </div>
+    </div>
+    <figure class="demo-video">
+      <video controls preload="metadata" poster="/images/blog/scenic-guide/home.png">
+        <source src="/videos/lingshan-demo-subtitled.mp4" type="video/mp4" />
+        你的浏览器暂不支持直接播放该演示视频。
+      </video>
+      <figcaption>录制于本地演示环境，使用 demo seed 数据，不代表公网商业系统。</figcaption>
+    </figure>
+  </section>
+
   <section class="container section proof-strip" aria-label="项目真实页面截图">
     <div class="section-head">
       <div>

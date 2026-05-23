@@ -133,9 +133,11 @@ go run ./cmd/rag-eval -format json
 - 缺失关键词
 - 回答预览
 
-现在我不再把 3000/300 合成闭集当成主要卖点。它的 Recall@8 100.0% 只能说明固定合成数据上的检索链路可运行、可回归，不能外推到真实游客开放问法。
+现在我不再把 3000/300 合成闭集当成主要卖点。它的 Recall@8 100.0% 只能说明固定合成数据上的检索链路可运行、可回归，不能外推到真实游客开放问法，也不能包装成真实开放域效果。
 
-更可信的口径是 `knowledge/real/` 真实资料评估：122 个真实资料切片、203 条独立评测问答，并发 16、repeat 3 后一共 609 次 retrieval-only 评估。本地 BM25/词面检索结果为 Recall@8 85.5%、MRR@8 0.749、关键词覆盖率 94.3%、纯检索 p50/p95 约 7ms/10ms。启用 DashScope `text-embedding-v2` 后，同口径 Recall@8 和 MRR 保持一致，检索 p50/p95 约 69ms/80ms。这个指标仍然只覆盖检索链路，不包含 DeepSeek 生成、ASR 或 TTS。
+更可信的主口径是 `knowledge/real/` 真实资料评估：122 个真实资料切片、203 条独立评测问答，并发 16、repeat 3 后一共 609 次 retrieval-only 评估。本地 BM25/词面检索结果为 Recall@8 85.5%、MRR@8 0.749、关键词覆盖率 94.3%、纯检索 p50/p95 约 7ms/10ms。启用 DashScope `text-embedding-v2` 后，同一数据集、同一并发和 repeat 口径下，Recall@8、MRR 和关键词覆盖率保持一致，检索 p50/p95 约 69ms/80ms。
+
+这个指标仍然只覆盖检索链路，不包含 DeepSeek 生成、ASR 或 TTS，也不验证多轮对话的事实性。它能证明的是：资料边界、检索脚本、BM25 兜底和 Embedding 接入可以被复现；不能证明“游客随便问都能答对”。
 
 我把这些结果写进了 `docs/rag-eval-report.md`，也在 `knowledge/DATASET.md` 里说明了基础 smoke、合成闭集和真实资料评估集各自能证明什么、不能证明什么。这个边界比一个漂亮的百分比更重要。
 

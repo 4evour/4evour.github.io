@@ -16,7 +16,15 @@ draft: false
 
 我希望它看起来不是“能跑的 demo”，而是一个有边界、有兜底、有维护入口的小系统。
 
-下面几张图来自这套系统最新版本在本地真实启动后的页面截图，后端使用 demo seed 写入演示数据，页面通过实际 API 读取内容。它仍然是作品集/课程项目，不是公网商业系统；我更想展示的是可复现、可验证和边界清楚。
+下面的视频和截图来自这套系统最新版本在本地真实启动后的页面，后端使用 demo seed 写入演示数据，页面通过实际 API 读取内容。它仍然是作品集/课程项目，不是公网商业系统；我更想展示的是可复现、可验证和边界清楚。
+
+<figure class="demo-video">
+  <video controls preload="metadata" poster="/images/blog/scenic-guide/home.png">
+    <source src="/videos/lingshan-demo-subtitled.mp4" type="video/mp4" />
+    你的浏览器暂不支持直接播放该演示视频。
+  </video>
+  <figcaption>演示视频覆盖游客端、数据看板、管理后台、地图、数字人导览和 RAG 评估边界。</figcaption>
+</figure>
 
 ![灵山智能导览游客端首页](/images/blog/scenic-guide/home.png)
 
@@ -28,14 +36,14 @@ draft: false
 
 ## 主服务用 Go 扛住所有入口
 
-后端主服务用了 Go + Gin。数据层以 PostgreSQL + GORM 作为准生产主路径，SQLite 作为本地测试和轻量演示 fallback，配置用 Viper，鉴权用 JWT。
+后端主服务用了 Go + Gin。数据层以 PostgreSQL + GORM 作为主路径，SQLite 只作为本地开发和轻量测试配置，配置用 Viper，鉴权用 JWT。
 
 `main.go` 里我没有把启动流程写得很随意，而是按依赖顺序一步步来：
 
 1. 读取 `configs/` 下的配置。
 2. 初始化 `slog` 日志。
 3. 初始化 JWT。
-4. 连接 PostgreSQL，或在本地测试场景连接 SQLite fallback。
+4. 连接 PostgreSQL，或在本地开发/轻量测试场景连接 SQLite。
 5. 执行 GORM AutoMigrate。
 6. 初始化 RAG 服务。
 7. 组装 repository、service、handler。
@@ -51,6 +59,13 @@ draft: false
 第三，关闭服务时用了 10 秒超时的 graceful shutdown。对一个小项目来说这可能有点认真，但我觉得这是写 Web 服务时应该养成的习惯。
 
 最新版本还把本地复现路径补齐了：仓库提供 `Dockerfile`、`.dockerignore` 和 `docker-compose.yml`，默认用 PostgreSQL 16 跑主数据库；没有 DeepSeek、DashScope 或语音服务 Key 时，页面和本地 BM25/词面检索评估仍然能跑。这样项目展示不依赖“我本机刚好配好了所有服务”，评审也能按 README 复现基础链路。
+
+```powershell
+$env:SCENIC_GUIDE_SECURITY_JWT_SECRET="至少32位随机字符串"
+docker compose up --build
+```
+
+我也刻意不把 SQLite 写成高可用兜底。它只是本地开发和轻量测试路径，真正讲项目架构时，主线仍然是 PostgreSQL + GORM + 连接池 + 索引。
 
 ## 分层不是为了好看
 

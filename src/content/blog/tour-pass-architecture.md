@@ -2,6 +2,7 @@
 title: "我做了一个 C++ 旅游行程规划服务"
 description: "记录 Tour Pass 的整体架构：POI 图建模、cpp-httplib API、服务运行时、Beam Search 行程规划、候选方案对比、LLM/模板解释和本地演示台。"
 pubDate: 2026-05-18
+updatedDate: 2026-05-23
 tags: ["C++", "算法", "项目复盘", "旅行规划"]
 project: "Tour Pass"
 featured: true
@@ -34,6 +35,10 @@ Tour Pass 是我做的一个 C++17 城市自由行行程规划服务。
 
 后来我又给它补了一层服务运行时：显式线程池、请求中间件、进程内缓存、异步规划任务和 JSON 指标。这个变化让它不只是“一个能返回路线的 C++ API”，而是更接近一个可讲工程治理的小服务。
 
+最近一轮迭代把项目从小样例演示继续往“可信作品集证据”推进了一步。默认离线样例仍然保留 `25 POI / 46 edges`，方便任何机器快速复现；同时新增了高德 Web 服务真实 POI 采集、通勤边生成、边来源门禁、真实规模实验、Docker 容器冒烟和部署说明。也就是说，Tour Pass 现在可以清楚地区分三件事：稳定离线演示、真实地点数据接入、以及还没有承诺的生产级实时地图路网。
+
+再往后，项目接入了 SQLite 持久化和可配置最短路缓存。SQLite 记录规划请求、异步任务、benchmark 和数据版本，用来复盘演示过程；规划热路径仍然读取启动时加载的内存图。最短路缓存默认在 `500` POI 以内使用全量 all-pairs 缓存，超过阈值才切到按需 LRU，这个取舍很朴素：几百点作品集规模优先简单可靠，LRU 是扩展保护策略，不是为了把小数据集说得很复杂。
+
 ## 启动时先把城市变成图
 
 服务启动后会加载两份数据：
@@ -52,6 +57,8 @@ transit_minutes -> taxi_minutes -> walk_minutes
 这样做是因为城市自由行里，公共交通比纯步行更接近普通游客行为；同时保留打车和步行字段，后续要扩展多交通方式也不会推倒重来。
 
 图模块 `PoiGraph` 负责建立 id/name 索引和邻接表，并提供 Dijkstra 与 A* 路径查询。也就是说，行程规划器不直接关心数据文件怎么存，只问图模块：“从 A 到 B 需要多久？”
+
+真实数据入口没有替换掉这条主链路，而是把外部 POI 标准化成同样的 `pois.json` / `edges.json` 形状。`scripts/fetch_amap_pois.js` 负责分页采集长沙真实 POI、去重和统计类型/区域覆盖；`scripts/build_commute_edges.js` 为近邻 POI 生成通勤边，并为每条边标记 `source=amap` 或 `source=geo_estimated`。这让文章和面试里可以明确说明：真实 POI 是真实地点，通勤边是否真实要看来源比例，不能把估算边包装成完整真实路网。
 
 ## HTTP API 是演示入口，不只是调试口
 
@@ -235,6 +242,8 @@ mingw32-make validate-data
 CI 会在 Ubuntu 和 Windows 上跑数据校验、CMake 构建、CTest，并在 Windows 上启动服务做 API 冒烟测试。
 
 数据校验脚本 `scripts/validate_data.js` 会检查 POI 字段、坐标、时间窗、类型覆盖、边引用、边权合法性和图连通性。这个门禁很朴素，但对算法项目很关键：如果输入数据坏了，算法再漂亮也会输出奇怪路线。
+
+最新版本还补上了容器和部署证据。`Dockerfile` 可以把 C++ 服务构建成镜像，容器默认监听 `0.0.0.0:8080` 并设置 `LLM_DISABLED=1`，避免公开视频依赖外部模型密钥。`scripts/container_smoke.js` 会在容器启动后检查 `/health` 和核心规划链路；`docs/deployment.md` 则把 GHCR、Render/Fly/Railway 这类 Docker 部署口径和 SQLite 持久卷边界写清楚。这里我会刻意只说“可容器化演示”，不说“已经上线生产服务”。
 
 ## 这个项目真正想展示什么
 

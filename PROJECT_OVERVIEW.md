@@ -11,9 +11,11 @@
 - 项目已从 Gmeek 迁移为 Astro 静态站点。
 - 原 Gmeek 示例文章 `test1` 已从站内删除，不再生成 `/blog/test1/` 和 `/post/test1.html`。
 - 已根据 `D:\go web 01` 的“灵山胜境景区智能导览系统”项目生成 3 篇项目复盘文章，覆盖整体架构、RAG 知识库和 Live2D 数字人集成，并归档到 `/projects/scenic-guide/` 项目页。
-- 灵山胜境项目页和相关文章已加入真实本地运行截图，图片位于 `public/images/blog/scenic-guide/`，覆盖游客端首页、数据大屏、游客地图、管理后台和 Live2D 数字人舞台；最新内容同步了真实资料 RAG 评估集、Docker Compose 复现路径和数字人联调检查口径。
+- 灵山胜境项目页和相关文章已加入真实本地运行截图与演示视频，图片位于 `public/images/blog/scenic-guide/`，视频位于 `public/videos/lingshan-demo-subtitled.mp4`；内容覆盖游客端首页、数据大屏、游客地图、管理后台、Live2D 数字人舞台、真实资料 RAG 评估集、Docker Compose 复现路径和数字人联调检查口径。
 - 已根据 `D:\Tour Pass` 生成 3 篇项目复盘文章，覆盖 C++ 行程规划服务整体架构、算法链路和工程化演示，并归档到 `/projects/tour-pass/` 项目页。
 - Tour Pass 文章已同步项目 v1.9 运行时能力：请求 ID/耗时/安全头、显式线程池、热点缓存、`/trip/jobs` 异步规划任务、`/metrics` 指标和并发性能基线。
+- Tour Pass 内容已同步到项目 v2.8：新增 `/blog/tour-pass-real-data-demo/`，更新原架构/算法/工程化三篇文章的 `updatedDate` 与内容，覆盖高德真实 POI 流水线、`500 POI / 1937 edges` 本地结果、估算边重试后 `98.5%` 高德来源比例、SQLite 复盘、距离缓存、Docker/部署口径和录屏证据链。
+- Tour Pass 项目页已加入真实数据证据摘要和站内 Web 演示视频；视频资源位于 `public/videos/tour-pass/tour-pass-web-demo.mp4`，封面位于 `public/videos/tour-pass/tour-pass-web-demo-poster.jpg`，正文和项目页通过站内绝对路径嵌入。
 - 已将 CSDN 旧文“2024 昆明邀请赛 VP 记录”迁移为算法文章 `/blog/kunming-2024-vp/`，并归入 `算法`、`ICPC`、`VP`、`C++` 标签。
 
 ## 拟采用技术栈
@@ -45,6 +47,7 @@
 - 迁移时优先保留既有文章链接或提供重定向，避免旧链接失效。
 - 视觉升级优先保持静态、轻量、可维护；封面视觉由 CSS 与文章元数据生成，站点背景优先使用本地静态素材，避免不可控远程素材。
 - 从外站迁移文章图片时优先落到 `public/images/blog/<slug>/`，正文使用站内绝对路径引用，避免依赖远程防盗链和外部资源稳定性。
+- 站内演示视频放在 `public/videos/<project>/`，正文或项目页使用 HTML `<video>` 嵌入；视频应提供同目录 poster，并在 `src/styles/global.css` 复用文章媒体样式。
 
 ## 运行与测试方式
 
