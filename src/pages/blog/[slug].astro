@@ -1,10 +1,12 @@
 ---
 import { render } from "astro:content";
 import BackToTop from "../../components/BackToTop.astro";
+import Giscus from "../../components/Giscus.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ReadingProgress from "../../components/ReadingProgress.astro";
+import SeriesNav from "../../components/SeriesNav.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
-import { getPublishedPosts, formatDate } from "../../utils/posts";
+import { getPublishedPosts, getSeriesPosts, formatDate } from "../../utils/posts";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -17,9 +19,20 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+const ogImage = new URL(`/og/${post.id}.png`, Astro.site).href;
+
+const allPosts = await getPublishedPosts();
+const seriesPosts = post.data.project
+  ? getSeriesPosts(allPosts, post.data.project)
+  : [];
+const currentIndex = seriesPosts.findIndex((p) => p.id === post.id);
+const prev = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null;
+const next = currentIndex >= 0 && currentIndex < seriesPosts.length - 1
+  ? seriesPosts[currentIndex + 1]
+  : null;
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout title={post.data.title} description={post.data.description} ogImage={ogImage} ogType="article">
   <ReadingProgress />
   <article class="article">
     <header class="article-header article-hero">
@@ -51,5 +64,9 @@ const { Content, headings } = await render(post);
       </div>
     </div>
   </article>
+  {seriesPosts.length > 1 && (prev || next) && (
+    <SeriesNav prev={prev} next={next} project={post.data.project!} />
+  )}
+  <Giscus />
   <BackToTop />
 </BaseLayout>

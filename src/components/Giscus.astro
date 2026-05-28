@@ -1,0 +1,62 @@
+---
+// Giscus comment component
+// Configuration: replace the values below with your own from https://giscus.app
+// 1. Enable Discussions on your GitHub repo
+// 2. Visit giscus.app and fill in your repo details
+// 3. Replace the data-* attributes below
+---
+
+<section class="giscus-section" aria-label="评论">
+  <p class="giscus-section-title">评论</p>
+  <div id="giscus-container"></div>
+</section>
+
+<script is:inline data-astro-rerun>
+  (() => {
+    const container = document.getElementById("giscus-container");
+    if (!container) return;
+
+    // Clear previous Giscus instance on ClientRouter navigation
+    container.innerHTML = "";
+
+    const theme = document.documentElement.dataset.theme === "dark"
+      ? "dark_dimmed"
+      : "light";
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.setAttribute("data-repo", "4evour/4evour.github.io");
+    script.setAttribute("data-repo-id", "R_kgDONiIlwg");
+    script.setAttribute("data-category", "Blog Comments");
+    script.setAttribute("data-category-id", "DIC_kwDONiIlws4C-At-");
+    script.setAttribute("data-mapping", "pathname");
+    script.setAttribute("data-strict", "0");
+    script.setAttribute("data-reactions-enabled", "1");
+    script.setAttribute("data-emit-metadata", "0");
+    script.setAttribute("data-input-position", "top");
+    script.setAttribute("data-theme", theme);
+    script.setAttribute("data-lang", "zh-CN");
+    script.setAttribute("data-loading", "lazy");
+    script.crossOrigin = "anonymous";
+    script.async = true;
+    container.appendChild(script);
+
+    // Sync theme on toggle
+    const toggle = document.querySelector("[data-theme-toggle]");
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        setTimeout(() => {
+          const newTheme = document.documentElement.dataset.theme === "dark"
+            ? "dark_dimmed"
+            : "light";
+          const iframe = document.querySelector("iframe.giscus-frame");
+          if (!iframe) return;
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: newTheme } } },
+            "https://giscus.app"
+          );
+        }, 100);
+      }, { passive: true });
+    }
+  })();
+</script>

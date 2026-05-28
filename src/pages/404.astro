@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="404 - 页面走丢了" description="你访问的页面不存在。">
+  <section class="container error-page">
+    <div class="error-page-inner">
+      <span class="error-page-code" aria-hidden="true">404</span>
+      <p class="eyebrow">Not Found</p>
+      <h1>页面走丢了</h1>
+      <p>
+        你要找的页面可能已经被移除、改名，或者从未存在过。
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/">回到首页</a>
+        <a class="button" href="/blog/">阅读文章</a>
+        <a class="button" href="/search/">搜索</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

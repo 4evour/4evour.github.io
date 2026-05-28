@@ -1,0 +1,50 @@
+---
+import { Icon } from "astro-icon/components";
+import { formatDate } from "../utils/posts";
+
+interface Props {
+  prev: { id: string; data: { title: string; pubDate: Date } } | null;
+  next: { id: string; data: { title: string; pubDate: Date } } | null;
+  project: string;
+}
+
+const { prev, next, project } = Astro.props;
+---
+
+<nav class="series-nav container" aria-label="系列文章导航">
+  <p class="series-nav-label">系列：{project}</p>
+  <div class="series-nav-grid">
+    {
+      prev ? (
+        <a class="series-nav-card" href={`/blog/${prev.id}/`}>
+          <span class="series-nav-dir">
+            <Icon name="lucide:arrow-left" aria-hidden="true" />
+            上一篇
+          </span>
+          <strong>{prev.data.title}</strong>
+          <time datetime={prev.data.pubDate.toISOString()}>
+            {formatDate(prev.data.pubDate)}
+          </time>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      next ? (
+        <a class="series-nav-card series-nav-card-next" href={`/blog/${next.id}/`}>
+          <span class="series-nav-dir">
+            下一篇
+            <Icon name="lucide:arrow-right" aria-hidden="true" />
+          </span>
+          <strong>{next.data.title}</strong>
+          <time datetime={next.data.pubDate.toISOString()}>
+            {formatDate(next.data.pubDate)}
+          </time>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </div>
+</nav>

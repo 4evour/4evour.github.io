@@ -7,9 +7,13 @@ import "../styles/global.css";
 const {
   title = "4evour blog",
   description = "欢迎来到 4evour 的个人博客。",
+  ogImage,
+  ogType = "website",
 } = Astro.props;
 
 const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
 ---
 
 <!doctype html>
@@ -20,6 +24,17 @@ const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="4evour blog" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
     <title>{pageTitle}</title>
     <ClientRouter />
     <script is:inline>
@@ -35,6 +50,7 @@ const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
         event.newDocument.documentElement.dataset.theme = getPreferredTheme();
       });
     </script>
+    <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="50552309-1c05-4680-92fb-17c6b7687cb5"></script>
   </head>
   <body>
     <div class="custom-cursor" aria-hidden="true" data-custom-cursor>
@@ -188,6 +204,11 @@ const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
         initThemeToggle();
         initRevealOnScroll();
         initCustomCursor();
+
+        // Track pageview on ClientRouter navigation
+        if (window.umami) {
+          window.umami.track();
+        }
       })();
     </script>
   </body>

@@ -1,4 +1,5 @@
 ---
+import { Icon } from "astro-icon/components";
 import type { MarkdownHeading } from "astro";
 
 interface Props {
@@ -12,8 +13,17 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
 {
   visibleHeadings.length > 0 && (
     <aside class="toc" aria-label="文章目录">
-      <p class="toc-title">目录</p>
-      <nav>
+      <button
+        class="toc-toggle"
+        type="button"
+        data-toc-toggle
+        aria-expanded="false"
+        aria-controls="toc-nav"
+      >
+        <span>目录</span>
+        <Icon name="lucide:chevron-down" aria-hidden="true" />
+      </button>
+      <nav class="toc-nav" id="toc-nav">
         <ol>
           {visibleHeadings.map((heading) => (
             <li class={`toc-depth-${heading.depth}`}>
@@ -25,3 +35,63 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
     </aside>
   )
 }
+
+<script is:inline data-astro-rerun>
+  (() => {
+    const toc = document.querySelector(".toc");
+    if (!toc || toc.dataset.tocReady === "true") return;
+    toc.dataset.tocReady = "true";
+
+    // Mobile toggle
+    const toggle = toc.querySelector("[data-toc-toggle]");
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        const isOpen = toc.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+      });
+    }
+
+    // Scroll-spy
+    const tocLinks = toc.querySelectorAll(".toc-nav a");
+    if (!tocLinks.length) return;
+
+    const controller = new AbortController();
+    let activeLink = null;
+
+    const setActive = (link) => {
+      if (activeLink) activeLink.classList.remove("is-active");
+      if (link) link.classList.add("is-active");
+      activeLink = link;
+    };
+
+    const headingObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            const link = toc.querySelector(`a[href="#${CSS.escape(id)}"]`);
+            if (link) setActive(link);
+          }
+        }
+      },
+      { rootMargin: "-20% 0px -70% 0px" },
+    );
+
+    tocLinks.forEach((link) => {
+      const hash = link.getAttribute("href");
+      if (!hash) return;
+      const heading = document.getElementById(hash.slice(1));
+      if (heading) headingObserver.observe(heading);
+    });
+
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        headingObserver.disconnect();
+        controller.abort();
+        delete toc.dataset.tocReady;
+      },
+      { once: true },
+    );
+  })();
+</script>

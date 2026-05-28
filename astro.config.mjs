@@ -14,7 +14,7 @@ export default defineConfig({
     }),
     icon({
       include: {
-        lucide: ["arrow-up", "moon", "rss", "search", "sun"],
+        lucide: ["arrow-left", "arrow-right", "arrow-up", "chevron-down", "message-square", "moon", "rss", "search", "sun"],
       },
     }),
     sitemap(),

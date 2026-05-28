@@ -30,3 +30,12 @@ export function getPostsByProject(
 ) {
   return posts.filter((post) => post.data.project === project);
 }
+
+export function getSeriesPosts(
+  posts: Awaited<ReturnType<typeof getPublishedPosts>>,
+  project: string,
+) {
+  return posts
+    .filter((post) => post.data.project === project)
+    .sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+}
