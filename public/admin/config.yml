@@ -1,0 +1,94 @@
+backend:
+  name: github
+  repo: 4evour/4evour.github.io
+  branch: main
+
+media_folder: public/images/blog/uploads
+public_folder: /images/blog/uploads
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: blog
+    label: 文章
+    label_singular: 文章
+    folder: src/content/blog
+    create: true
+    delete: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    sortable_fields:
+      - pubDate
+      - updatedDate
+      - title
+    view_filters:
+      - label: 已发布
+        field: draft
+        pattern: false
+      - label: 草稿
+        field: draft
+        pattern: true
+      - label: 精选
+        field: featured
+        pattern: true
+    fields:
+      - label: 标题
+        name: title
+        widget: string
+      - label: 摘要
+        name: description
+        widget: text
+      - label: 发布日期
+        name: pubDate
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+        format: YYYY-MM-DD
+      - label: 更新日期
+        name: updatedDate
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+        format: YYYY-MM-DD
+        required: false
+      - label: 标签
+        name: tags
+        widget: list
+        default: []
+      - label: 项目
+        name: project
+        widget: string
+        required: false
+      - label: 首页精选
+        name: featured
+        widget: boolean
+        default: false
+      - label: 封面色调
+        name: coverTone
+        widget: select
+        default: forest
+        options:
+          - label: Forest
+            value: forest
+          - label: Ink
+            value: ink
+          - label: Sunset
+            value: sunset
+          - label: Violet
+            value: violet
+      - label: 封面文字
+        name: coverLabel
+        widget: string
+        required: false
+      - label: 草稿
+        name: draft
+        widget: boolean
+        default: true
+      - label: 正文
+        name: body
+        widget: markdown
