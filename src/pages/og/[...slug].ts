@@ -22,22 +22,19 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     font: {
       title: {
         color: [29, 27, 24],
-        families: ["Inter", "Noto Sans SC"],
+        families: ["Inter"],
         size: 64,
         weight: "Bold",
         lineHeight: 1.2,
       },
       description: {
         color: [100, 96, 88],
-        families: ["Inter", "Noto Sans SC"],
+        families: ["Inter"],
         size: 32,
         weight: "Normal",
         lineHeight: 1.4,
       },
     },
-    fonts: [
-      "./public/fonts/Inter-Bold.ttf",
-      "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap",
-    ],
+    fonts: ["./public/fonts/Inter-Bold.ttf"],
   }),
 });

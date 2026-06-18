@@ -2,6 +2,7 @@
 title: "我把 Live2D 数字人接进了导览系统"
 description: "记录灵山胜境智能导览系统里数字人部分的实现：Open-LLM-VTuber、OpenAI 兼容接口、SSE 流式响应、Live2D 表情和口型同步。"
 pubDate: 2026-05-16
+updatedDate: 2026-06-18
 tags: ["数字人", "Live2D", "Go", "WebSocket"]
 project: "灵山胜境智能导览系统"
 featured: true
@@ -15,6 +16,8 @@ draft: false
 但我不想只是把一个 Live2D 模型摆在页面上。我的目标是让它真的接入导览系统：游客问问题，后端查知识库，生成回答，数字人播报，表情跟着变化，后台还能记录这次交互。
 
 最后这条链路里用到了 Go/Gin、RAG、OpenAI-compatible API、SSE、WebSocket 代理、Open-LLM-VTuber、Vue、PixiJS 和 pixi-live2d-display。
+
+2026-06-18 更新：这篇记录的是数字人第一轮接入。后续版本已经把 OpenAI 兼容接口从“完整回答切块输出”改成真实 `QueryWithRAGStreaming` 流式链路，并把文字回答和语音播放解耦；最新变化见《景区导览系统 6 月更新：从演示链路到游客闭环》。
 
 这张图来自最新版本本地真实运行的数字人舞台：页面里保留了 Live2D 展示、状态栏和前端控制区域。主联调路径是 Open-LLM-VTuber 协议适配和前端二开，不是从零自研完整数字人底层框架。
 
@@ -75,7 +78,7 @@ OpenAI 兼容接口里，如果请求带了 `stream=true`，我会返回 `text/e
 3. 最后一块带 `finish_reason=stop`。
 4. 最后写入 `[DONE]`。
 
-这不是真正边生成边输出，因为 RAG 当前还是先拿到完整回答，再模拟流式输出。但对数字人端来说，它能按照 OpenAI SSE 的格式消费内容，体验和兼容性都更好。
+这在第一轮实现里还不是真正边生成边输出，因为当时 RAG 还是先拿到完整回答，再模拟流式输出。但对数字人端来说，它能按照 OpenAI SSE 的格式消费内容，体验和兼容性都更好。后续 6 月版本已经把这块改成真实上游流式生成。
 
 后面如果换成真正流式大模型，只需要把这里从“切完整回答”改成“转发模型 token 流”，接口形状不用大改。
 

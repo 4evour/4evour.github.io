@@ -14,8 +14,8 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <p class="eyebrow">Project archive</p>
       <h1>{projectName}</h1>
       <p>
-        这是我把 Go/Gin、PostgreSQL/GORM、Vue、RAG 知识库、Docker 复现、OpenAI 兼容接口、数据看板和 Live2D
-        数字人串到一起的一次项目实践。最新口径加入了真实资料评估集和数字人联调检查，不把合成闭集指标包装成线上结果。
+        这是我把 Go/Gin、PostgreSQL/GORM、Vue、RAG 知识库、Cookie/CSRF 鉴权、数据看板、电子围栏、
+        二维码管理和 Live2D 数字人串到一起的一次项目实践。最新口径加入了官方资料知识库、游客反馈闭环和真实流式问答。
       </p>
     </div>
     <div class="project-detail-panel" aria-label="项目技术栈">
@@ -37,18 +37,18 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
     <div class="evidence-grid">
       <article>
         <span>RAG real eval</span>
-        <strong>122 切片 / 203 问答</strong>
-        <p>真实资料 retrieval-only bench：Recall@8 85.5%、MRR@8 0.749、关键词覆盖率 94.3%，不包含生成、ASR 或 TTS。</p>
+        <strong>150+ 切片 / 203 问答</strong>
+        <p>真实资料 retrieval-only bench：light-rerank 通过率 99.5%、Recall@8 95.3%、MRR@8 0.802，不包含生成、ASR 或 TTS。</p>
       </article>
       <article>
-        <span>Docker reproduce</span>
-        <strong>PostgreSQL 主路径</strong>
-        <p>通过 Docker Compose 启动 PostgreSQL 16 和 Go 服务；无外部 AI Key 时仍可跑页面和 BM25/词面检索评估。</p>
+        <span>Visitor loop</span>
+        <strong>反馈到知识候选</strong>
+        <p>游客满意度反馈可进入脱敏分析，生成知识候选并由管理员审批入库；无 API Key 时不伪造 AI 分析结果。</p>
       </article>
       <article>
         <span>VTuber integration</span>
-        <strong>协议适配清单</strong>
-        <p>数字人部分明确验证 OpenAI 兼容接口、SSE、WebSocket、打断/重连、麦克风权限和 trace 状态展示。</p>
+        <strong>真实流式 + 语音解耦</strong>
+        <p>OpenAI 兼容接口改为真实 SSE 流式；文字回答不再被 WebSocket、TTS 或浏览器自动播放问题阻塞。</p>
       </article>
     </div>
   </section>
@@ -109,7 +109,7 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
       <div>
         <p class="eyebrow">Notes</p>
         <h2>项目文章</h2>
-        <p>按技术链路拆开写，比单独放一个仓库链接更容易看清这个项目做了什么。</p>
+        <p>按技术链路拆开写，比单独放一个仓库链接更容易看清这个项目从演示链路到游客闭环做了什么。</p>
       </div>
       <a class="button" href="/projects/">返回项目</a>
     </div>

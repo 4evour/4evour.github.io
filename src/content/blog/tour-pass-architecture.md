@@ -2,7 +2,7 @@
 title: "我做了一个 C++ 旅游行程规划服务"
 description: "记录 Tour Pass 的整体架构：POI 图建模、cpp-httplib API、服务运行时、Beam Search 行程规划、候选方案对比、LLM/模板解释和本地演示台。"
 pubDate: 2026-05-18
-updatedDate: 2026-05-23
+updatedDate: 2026-06-18
 tags: ["C++", "算法", "项目复盘", "旅行规划"]
 project: "Tour Pass"
 featured: true
@@ -16,6 +16,8 @@ Tour Pass 是我做的一个 C++17 城市自由行行程规划服务。
 它的目标不是接一个地图 API，然后把结果包一层页面。这个项目更像一次“算法服务怎么做成可演示作品”的练习：把城市里的景点、餐厅、酒店、夜间活动点建模成 POI 图，再结合最短路、时间窗、兴趣评分、候选策略、检索和自然语言解释，生成多日旅行计划。
 
 当前 MVP 用的是长沙样例数据。它可以在本地离线跑起来，也可以在面试展示时直接打开 Web 演示台，看候选路线、评分拆解、时间窗复核、路径查询、替换方案和服务端指标。
+
+2026-06-18 更新：这篇保留 Tour Pass 作为 C++ 算法服务阶段的架构复盘。后续项目已经演进到 C++ + Python Agent 双引擎、21 城市 15000+ POI、React 行程编辑器和 Render 线上演示；最新口径见《Tour Pass 6 月更新：从 C++ 算法服务到 AI 行程平台》。
 
 ## 为什么用 C++ 写这个项目
 
@@ -243,7 +245,7 @@ CI 会在 Ubuntu 和 Windows 上跑数据校验、CMake 构建、CTest，并在 
 
 数据校验脚本 `scripts/validate_data.js` 会检查 POI 字段、坐标、时间窗、类型覆盖、边引用、边权合法性和图连通性。这个门禁很朴素，但对算法项目很关键：如果输入数据坏了，算法再漂亮也会输出奇怪路线。
 
-最新版本还补上了容器和部署证据。`Dockerfile` 可以把 C++ 服务构建成镜像，容器默认监听 `0.0.0.0:8080` 并设置 `LLM_DISABLED=1`，避免公开视频依赖外部模型密钥。`scripts/container_smoke.js` 会在容器启动后检查 `/health` 和核心规划链路；`docs/deployment.md` 则把 GHCR、Render/Fly/Railway 这类 Docker 部署口径和 SQLite 持久卷边界写清楚。这里我会刻意只说“可容器化演示”，不说“已经上线生产服务”。
+当时的最新版本还补上了容器和部署证据。`Dockerfile` 可以把 C++ 服务构建成镜像，容器默认监听 `0.0.0.0:8080` 并设置 `LLM_DISABLED=1`，避免公开视频依赖外部模型密钥。`scripts/container_smoke.js` 会在容器启动后检查 `/health` 和核心规划链路；`docs/deployment.md` 则把 GHCR、Render/Fly/Railway 这类 Docker 部署口径和 SQLite 持久卷边界写清楚。当时我刻意只说“可容器化演示”，不说“已经上线生产服务”；6 月之后项目才补上 Render 线上演示和 Agent 健康检查门禁。
 
 ## 这个项目真正想展示什么
 

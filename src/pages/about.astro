@@ -30,8 +30,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <h2>我最近在做什么</h2>
       <p>
         最近的项目主要围绕两条线展开：一条是面向真实业务场景的 AI 应用工程，
-        例如 RAG 知识库、OpenAI 兼容接口、数字人交互和后台管理；另一条是更偏算法和系统表达的服务，
-        例如用 C++ 实现城市自由行规划、图搜索、Beam Search、多候选对比和可视化演示台。
+        例如 RAG 知识库、OpenAI 兼容接口、数字人交互、游客反馈闭环和后台管理；另一条是更偏算法和系统表达的服务，
+        例如用 C++ 与 Python Agent 做城市自由行规划、图搜索、Beam Search、多候选对比和可编辑行程工作台。
       </p>
       <p>
         我写文章时不太想只写“用了什么技术栈”。更想把为什么这样拆模块、失败时怎么兜底、
@@ -42,12 +42,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <article>
         <span>01</span>
         <h3>AI 应用工程</h3>
-        <p>RAG、Embedding/BM25 兜底、OpenAI-compatible API、SSE 流式响应、数字人接入。</p>
+        <p>RAG、多路检索、OpenAI-compatible API、SSE 流式响应、数字人接入和反馈闭环。</p>
       </article>
       <article>
         <span>02</span>
         <h3>算法服务</h3>
-        <p>C++17、Dijkstra/A*、Beam Search、Pareto 非支配排序、评分拆解和性能基线。</p>
+        <p>C++17、Python Agent、Dijkstra/A*、Beam Search、Pareto 非支配排序、评分拆解和性能基线。</p>
       </article>
       <article>
         <span>03</span>
@@ -72,9 +72,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <p>景区问答、知识库、后台管理、数据看板、OpenAI 兼容接口和数字人交互链路。</p>
       </a>
       <a href="/projects/tour-pass/">
-        <span>C++17 / Graph / Beam Search</span>
+        <span>C++17 / Python Agent / React</span>
         <strong>Tour Pass</strong>
-        <p>城市自由行规划算法服务，覆盖 POI 图建模、候选路线、检索、解释和本地演示台。</p>
+        <p>城市自由行规划系统，覆盖 POI 图建模、候选路线、LangGraph Agent、React 编辑器和线上演示。</p>
       </a>
     </div>
   </section>

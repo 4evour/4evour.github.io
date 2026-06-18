@@ -2,6 +2,7 @@
 title: "Tour Pass 的真实数据流水线和演示视频"
 description: "记录 Tour Pass v2.8 如何补上真实 POI 采集、通勤边来源门禁、Docker 容器冒烟、部署口径、SQLite 复盘和站内演示视频。"
 pubDate: 2026-05-23
+updatedDate: 2026-06-18
 tags: ["C++", "工程化", "真实数据", "项目复盘"]
 project: "Tour Pass"
 featured: true
@@ -15,6 +16,8 @@ draft: false
 最早的 Tour Pass 用 `25 POI / 46 edges` 的长沙样例数据就能跑通：行程规划、候选对比、路径查询、BM25 检索、时间窗复核和 LLM/模板解释都在本地闭环。但如果把它放进作品集，只说“我有一个样例图”还是偏薄。面试里很自然会继续问：真实地点怎么进来？通勤边是不是地图路网？数据大一点会不会爆？服务能不能容器化？演示视频能不能不用我本地编译？
 
 所以 v2.8 的重点是把这些问题拆开回答。
+
+2026-06-18 更新：这篇记录的是 v2.8 真实数据和演示视频阶段。后续 Tour Pass 已继续演进到 C++ + Python Agent 双引擎、21 城市 15000+ POI、React 行程编辑器和 Render 线上演示；最新平台化更新见《Tour Pass 6 月更新：从 C++ 算法服务到 AI 行程平台》。
 
 <video controls preload="metadata" poster="/videos/tour-pass/tour-pass-web-demo-poster.jpg" aria-label="Tour Pass Web 演示视频">
   <source src="/videos/tour-pass/tour-pass-web-demo.mp4" type="video/mp4" />
@@ -143,7 +146,7 @@ node scripts/container_smoke.js http://127.0.0.1:8080
 
 ## 我对这一版的判断
 
-Tour Pass v2.8 仍然不是生产级旅行平台。
+Tour Pass v2.8 在当时仍然不是生产级旅行平台。
 
 它没有实时交通，没有用户画像学习，没有线上 SLA，也没有真实业务流量。但它已经比一个普通算法 demo 更完整：有可离线演示的小样例，有真实 POI 接入入口，有边来源门禁，有本地规模实验，有算法质量对照，有 Docker 冒烟，有部署边界说明，还有一段可以直接嵌到博客里的演示视频。
 
