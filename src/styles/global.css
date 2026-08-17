@@ -355,9 +355,9 @@ button {
 
 .hero-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
-  max-width: 34rem;
+  max-width: 10rem;
   margin: 2.5rem 0 0;
 }
 
@@ -484,332 +484,10 @@ button {
   transform: rotate(-3deg);
 }
 
-.visual-terminal {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--surface) 76%, transparent);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  backdrop-filter: blur(18px);
-  animation: float-panel 6s ease-in-out 900ms infinite;
-}
-
-.terminal-bar {
-  display: flex;
-  gap: 0.45rem;
-  border-bottom: 1px solid var(--border);
-  padding: 0.8rem 1rem;
-}
-
-.terminal-bar span {
-  width: 0.6rem;
-  aspect-ratio: 1;
-  border-radius: 999px;
-  background: var(--border);
-}
-
-.terminal-bar span:nth-child(1) {
-  background: var(--accent-warm);
-}
-
-.terminal-bar span:nth-child(2) {
-  background: var(--accent);
-}
-
-.visual-terminal pre {
-  margin: 0;
-  padding: clamp(1.2rem, 3vw, 1.7rem);
-  overflow: auto;
-  color: var(--text);
-  font-size: clamp(0.86rem, 1.4vw, 0.98rem);
-  line-height: 1.75;
-}
-
-.typed-terminal {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--accent-warm) 18%, transparent), transparent 24%),
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 48%),
-    color-mix(in srgb, var(--surface) 82%, transparent);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  backdrop-filter: blur(18px);
-  animation: float-panel 6s ease-in-out 900ms infinite;
-}
-
-.typed-terminal::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent 0 46%, color-mix(in srgb, var(--accent) 7%, transparent) 48% 52%, transparent 54% 100%);
-  background-size: 100% 0.75rem;
-  opacity: 0.5;
-}
-
-.typed-terminal .terminal-bar {
-  position: relative;
-  z-index: 1;
-}
-
-.terminal-bar strong {
-  margin-left: auto;
-  color: var(--muted);
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 0.78rem;
-  font-weight: 760;
-}
-
-.typed-terminal pre {
-  position: relative;
-  z-index: 1;
-  min-height: 15rem;
-  margin: 0;
-  padding: clamp(1.2rem, 3vw, 1.7rem);
-  overflow: auto;
-  color: var(--accent);
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: clamp(0.98rem, 1.65vw, 1.16rem);
-  font-weight: 760;
-  line-height: 1.82;
-  white-space: pre-wrap;
-  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 26%, transparent);
-}
-
-.typed-cursor {
-  color: var(--accent-warm);
-}
-
-.typed-terminal-status {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.85rem;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 760;
-}
-
-.typed-terminal-status span:first-child {
-  width: 0.52rem;
-  aspect-ratio: 1;
-  border-radius: 999px;
-  background: var(--accent-warm);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--accent-warm) 58%, transparent);
-  animation: status-pulse 1200ms ease-in-out infinite;
-}
-
-.visual-layers {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.visual-layers span {
-  display: grid;
-  min-height: 3.8rem;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--muted);
-  font-weight: 760;
-  transition:
-    border-color 180ms ease,
-    color 180ms ease,
-    transform 180ms ease;
-}
-
-.visual-layers span:hover {
-  border-color: var(--accent);
-  color: var(--text);
-  transform: translateY(-0.15rem);
-}
-
 .hero-visual p {
   max-width: 28rem;
   margin: 0.4rem 0 0;
   color: var(--muted);
-}
-
-.project-spotlight {
-  display: grid;
-  grid-template-columns: minmax(0, 0.86fr) minmax(18rem, 1fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: center;
-}
-
-.writing-calendar-section {
-  display: grid;
-  grid-template-columns: minmax(0, 0.7fr) minmax(18rem, 1fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: start;
-}
-
-.calendar-copy h2 {
-  max-width: 8ch;
-  margin: 0;
-  font-size: clamp(2.4rem, 6vw, 5rem);
-  line-height: 0.98;
-  letter-spacing: 0;
-}
-
-.calendar-copy p:not(.eyebrow) {
-  max-width: 32rem;
-  margin: 1rem 0 0;
-  color: var(--muted);
-}
-
-.calendar-copy strong {
-  color: var(--text);
-}
-
-.calendar-board {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 55%),
-    var(--surface);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.calendar-summary {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid var(--border);
-  padding: 1rem;
-}
-
-.calendar-summary span,
-.calendar-summary p {
-  color: var(--muted);
-}
-
-.calendar-summary span,
-.calendar-summary strong {
-  display: block;
-}
-
-.calendar-summary strong {
-  margin-top: 0.35rem;
-  font-size: clamp(2.2rem, 6vw, 4.5rem);
-  line-height: 0.9;
-}
-
-.calendar-summary p {
-  margin: 0;
-}
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1px;
-  border-bottom: 1px solid var(--border);
-  background: var(--border);
-}
-
-.calendar-weekday,
-.calendar-day {
-  min-height: clamp(2.7rem, 7vw, 4.4rem);
-  background: var(--surface);
-}
-
-.calendar-weekday {
-  display: grid;
-  min-height: 2.2rem;
-  place-items: center;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 760;
-}
-
-.calendar-day {
-  position: relative;
-  color: var(--muted);
-}
-
-.calendar-day > span,
-.calendar-day a {
-  display: flex;
-  height: 100%;
-  min-height: inherit;
-  align-items: start;
-  justify-content: space-between;
-  padding: 0.55rem;
-  text-decoration: none;
-}
-
-.calendar-day a {
-  background:
-    radial-gradient(circle at 70% 74%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 38%),
-    color-mix(in srgb, var(--accent) 13%, var(--surface));
-  color: var(--text);
-  transition:
-    background 180ms ease,
-    color 180ms ease,
-    transform 180ms ease;
-}
-
-.calendar-day a:hover {
-  background:
-    radial-gradient(circle at 70% 74%, color-mix(in srgb, var(--accent) 38%, transparent), transparent 40%),
-    color-mix(in srgb, var(--accent) 18%, var(--surface));
-  color: var(--text);
-  transform: translateY(-0.08rem);
-}
-
-.calendar-day small {
-  display: grid;
-  min-width: 1.35rem;
-  height: 1.35rem;
-  place-items: center;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--bg);
-  font-size: 0.72rem;
-  font-weight: 760;
-}
-
-.calendar-day.is-empty {
-  background: color-mix(in srgb, var(--surface-strong) 42%, var(--surface));
-}
-
-.calendar-posts {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.calendar-posts li {
-  display: grid;
-  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
-  gap: 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-  padding: 0.9rem 1rem;
-}
-
-.calendar-posts li:first-child {
-  border-top: 0;
-}
-
-.calendar-posts time {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.calendar-posts a {
-  font-weight: 760;
-  text-decoration: none;
 }
 
 .daily-poem-card {
@@ -918,76 +596,6 @@ button {
   line-height: 1.65;
 }
 
-.spotlight-copy h2 {
-  max-width: 9ch;
-  margin: 0;
-  font-size: clamp(2.4rem, 6vw, 5rem);
-  line-height: 0.98;
-  letter-spacing: 0;
-}
-
-.spotlight-copy p {
-  max-width: 36rem;
-  margin: 1rem 0 0;
-  color: var(--muted);
-}
-
-.spotlight-map {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
-}
-
-.spotlight-map div {
-  min-height: 10rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent 55%),
-    var(--surface);
-  transition:
-    border-color 180ms ease,
-    transform 180ms ease,
-    background 180ms ease;
-}
-
-.spotlight-map div:nth-child(2),
-.spotlight-map div:nth-child(3) {
-  transform: translateY(1.5rem);
-}
-
-.spotlight-map div:hover {
-  border-color: var(--accent);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent 58%),
-    var(--surface);
-}
-
-.spotlight-map div:nth-child(1):hover,
-.spotlight-map div:nth-child(4):hover {
-  transform: translateY(-0.2rem);
-}
-
-.spotlight-map div:nth-child(2):hover,
-.spotlight-map div:nth-child(3):hover {
-  transform: translateY(1.25rem);
-}
-
-.spotlight-map strong,
-.spotlight-map span {
-  display: block;
-}
-
-.spotlight-map strong {
-  font-size: 1.2rem;
-  line-height: 1.2;
-}
-
-.spotlight-map span {
-  margin-top: 0.7rem;
-  color: var(--muted);
-}
 
 .section {
   padding: clamp(3.5rem, 7vw, 6rem) 0;
@@ -1301,6 +909,66 @@ button {
 
 .page-title {
   padding: clamp(3rem, 7vw, 5.5rem) 0 2rem;
+}
+
+.blog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 0;
+}
+
+.blog-toolbar p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.blog-toolbar-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.blog-archive {
+  display: grid;
+  gap: clamp(3rem, 8vw, 5.5rem);
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.blog-year {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.24fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 6vw, 4.5rem);
+  align-items: start;
+}
+
+.blog-year-heading {
+  position: sticky;
+  top: 6rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.9rem;
+}
+
+.blog-year-heading .eyebrow {
+  margin-bottom: 0.55rem;
+}
+
+.blog-year-heading h2 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1;
+}
+
+.blog-year-heading p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+.blog-year .post-list {
+  gap: 0;
 }
 
 .project-index-title {
@@ -2009,30 +1677,6 @@ button {
   }
 }
 
-@keyframes float-panel {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-0.45rem);
-  }
-}
-
-@keyframes status-pulse {
-  0%,
-  100% {
-    opacity: 0.48;
-    transform: scale(0.82);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.18);
-  }
-}
-
 @keyframes graph-scan {
   0%,
   20% {
@@ -2270,9 +1914,7 @@ button {
   }
 
   .hero,
-  .hero-inner,
-  .project-spotlight,
-  .writing-calendar-section {
+  .hero-inner {
     grid-template-columns: 1fr;
     min-height: auto;
   }
@@ -2283,30 +1925,12 @@ button {
 
   .hero-stats,
   .post-list-cards,
-  .evidence-grid,
-  .spotlight-map,
-  .visual-layers {
+  .evidence-grid {
     grid-template-columns: 1fr;
   }
 
   .hero-visual {
     min-height: auto;
-  }
-
-  .visual-layers span {
-    min-height: 2.9rem;
-  }
-
-  .typed-terminal pre {
-    min-height: 11rem;
-  }
-
-  .spotlight-copy h2 {
-    max-width: none;
-  }
-
-  .calendar-copy h2 {
-    max-width: none;
   }
 
   .daily-poem-card {
@@ -2324,16 +1948,6 @@ button {
     padding: 0.7rem 0.65rem;
   }
 
-  .calendar-posts li {
-    grid-template-columns: 1fr;
-    gap: 0.25rem;
-  }
-
-  .spotlight-map div:nth-child(2),
-  .spotlight-map div:nth-child(3) {
-    transform: none;
-  }
-
   .portrait-panel,
   .portrait-content {
     min-height: 18rem;
@@ -2341,6 +1955,30 @@ button {
 
   .post-item a {
     grid-template-columns: 1fr;
+  }
+
+  .blog-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .blog-year {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .blog-year-heading {
+    position: static;
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+  }
+
+  .blog-year-heading .eyebrow,
+  .blog-year-heading p:last-child {
+    margin: 0;
   }
 
   .project-index-title,
