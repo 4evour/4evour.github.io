@@ -1,226 +1,202 @@
-# Agent Memory 不是向量数据库：热门 Agent 的四层记忆系统调研
+---
+title: "Agent Memory 还没有标准答案：TencentDB、Mem0、Graphiti、Letta 的四种记忆观"
+subtitle: "真正需要比较的不是向量库，而是谁有权写入长期状态、旧事实如何失效，以及记忆如何回到 Agent"
+research_path: "research/agent-runtime-memory-2026"
+research_commit: "multi-project; see source-state.md"
+research_date: "2026-08-18"
+audience: "Agent、RAG 与 AI 系统工程师"
+status: draft
+---
 
-> **状态：已否决的第一版。** 本文研究对象偏向 coding-agent runtime，不是当前文章主体。有效研究范围与接续方式见 [HANDOFF.md](./HANDOFF.md)。保留本文仅用于复用其中关于落地现状、session persistence 与 compaction 的材料。
+# Agent Memory 还没有标准答案
 
-> 研究日期：2026-08-17。本文基于公开文档与公开仓库，研究 Claude Code、Codex、Gemini CLI、OpenCode、DeepSeek Harness、OpenClaw 与 Hermes Agent。GitHub stars 只用于说明样本热度，不用于技术排名。
+最近的 Agent Memory 讨论，常常从一个熟悉的问题开始：选哪种向量数据库，embedding 用多大，top-k 取多少。
 
-## 先说结论
+这些问题当然重要，但它们还没有碰到最难的部分。真正棘手的是：一个 Agent 今天记下“用户喜欢咖啡”，下周用户又说“我改喝茶”，系统应该怎样处理？是把旧记录覆盖掉，追加一条新记录，让旧事实在时间线上失效，还是让 Agent 编辑一份记忆文件并提交版本？如果这条信息属于团队经验，谁可以看到，谁可以把它装配给另一个 Agent？
 
-现在讨论 Agent memory，最大的误区是把所有“过去的信息”都叫作记忆，然后直接比较向量数据库、图数据库和 `MEMORY.md`。
+我的阅读是，Agent Memory 首先不是数据库选型，而是长期状态的权力与生命周期设计。它至少要回答五件事：谁能写，什么算一个记忆单元，冲突如何处理，证据如何保留，哪些内容以什么形状进入上下文。
 
-但热门 Agent 的真实设计已经分成四个平面：
+TencentDB Agent Memory、Mem0、Graphiti 和当前 Letta Agent SDK 恰好给出了四种不同答案。它们不是同一道题的四个竞品实现，而是把不同系统层放在了中心：团队资产治理、紧凑记忆记录、时间化事实图、Agent 自治状态。
 
-1. **规范性记忆**：Agent 应当如何工作，例如 `CLAUDE.md`、`AGENTS.md`、`GEMINI.md`。它解决规则、身份和项目约束。
-2. **工作记忆**：当前上下文窗口里的 messages、工具结果和 recent tail。它解决这一步推理能看到什么。
-3. **情景证据**：transcript、事件日志、checkpoint、snapshot。它解决会话能否恢复、重放、分叉和审计。
-4. **长期学习**：Auto Memory、`MEMORY.md`、skills，以及 TencentDB Agent Memory、Mem0、Graphiti、Letta 等外部系统。它解决跨会话召回、合并、共享和治理。
+> 本文依据 2026 年 8 月 18 日固定的源码和官方文档状态。没有执行四套系统的完整部署，也没有复现项目方 benchmark。文中关于质量、吞吐和成本的比较是设计层判断，不是统一实验结果。
 
-这四层会互相传递信息，但不能互相替代。增大上下文窗口不能替代长期治理；保存 transcript 也不代表模型会主动回忆；向量检索更不能替代一次执行的精确恢复。
+关键实现入口包括 `MemoryCore/src/metadata/types.ts`、`mem0/memory/main.py`、`graphiti_core/graphiti.py` 和 `letta-agent-sdk/src/types.ts`，具体提交与辅助仓库见文末研究包。
 
-```mermaid
-flowchart TB
-  A["规范性记忆：规则与身份\nCLAUDE.md / AGENTS.md / GEMINI.md"]
-  B["工作记忆：当前模型上下文\nmessages / tools / recent tail"]
-  C["情景证据：可恢复的过去\ntranscript / event log / checkpoint / snapshot"]
-  D["长期学习：可复用知识\nMEMORY.md / skills / vector / temporal graph"]
-  A --> B
-  C -->|"重建或压缩"| B
-  C -->|"抽取候选"| D
-  D -->|"检索与注入"| B
-  B -->|"新事件"| C
-```
+## 先建立一套比较方法
 
-真正的趋势不是“大家终于接上向量库”，而是**开始治理一次经历如何变成长期记忆**：什么时候抽取、谁能写、是否审批、如何合并、怎样遗忘、能否追到原始证据，以及错误记忆怎样撤销。
+读一个 Memory 系统，我会沿着下面这条链路追：
 
-## 七个热门 Agent，实际上在解不同的问题
+~~~text
+输入事件
+  -> 判断什么值得长期保存
+  -> 形成记忆对象
+  -> 去重、冲突、时间与版本处理
+  -> 持久化
+  -> 查询与排序
+  -> 上下文交付
+  -> 反馈、遗忘或重组
+~~~
 
-| 系统 | 规则/身份 | 长期学习 | 会话证据与恢复 | 最鲜明的设计选择 |
-|---|---|---|---|---|
-| Claude Code | 分层 `CLAUDE.md`、rules | 每仓库 Auto Memory，`MEMORY.md` + topic files | 会话与 compaction | 人写规则和 Agent 写学习明确分开，文件可直接审计 |
-| Codex | 分层 `AGENTS.md` | 本地生成式 memories，extract + consolidation | 本地会话状态与 compact | 明确把 memories 定义为 recall layer，而非强制规则源 |
-| Gemini CLI | 全局/项目/目录 `GEMINI.md` | 后台从旧 transcript 生成 `.patch` 与 `SKILL.md` 候选 | shadow Git checkpoint + conversation restore | 自动学习默认关闭，候选必须由人批准 |
-| OpenCode V2 | 指令源按 epoch 同步 | 主要依靠文件/扩展层 | durable messages、compaction checkpoint、Git snapshot | 活动上下文有损，但原始历史不删除 |
-| DSH | system prompt 与插件配置 | 第三方 memory 走通用 MCP | append-only event log、Zstd JSONL、可审计 compaction | 把可重放会话当 OS 底座，把语义记忆留给外部能力层 |
-| OpenClaw | bootstrap/workspace 文件 | `MEMORY.md` + 每日 notes + 搜索 | rolling main session、compaction 前 flush | 热记忆、冷笔记和压缩前持久化组成显式层级 |
-| Hermes | system prompt + `USER.md` | 有硬字符上限的 `MEMORY.md` | session history/search | 拒绝无限增长，写满后 Agent 必须合并或删除 |
+然后问七个具体问题：
 
-## Claude Code：记忆首先是可审计的文件
+1. 主抽象是什么，记录、图、文件、资产，还是它们的组合？
+2. 默认写入者是谁，后台模型、应用、Agent，还是管理员？
+3. 新事实出现时，系统追加、覆盖、失效还是生成新版本？
+4. 时间表示事件发生时间、系统写入时间，还是两者都有？
+5. 检索结果如何进入上下文，系统常驻、动态前缀、工具调用还是 Agent 主动读取？
+6. 共享和权限在哪里执行，搜索时、装配时、文件同步时，还是根本不负责？
+7. 遗忘是删除、硬过期、软降权、归档，还是由 Agent 自己重组？
 
-Claude Code 的官方文档把两个系统放在同一页，却刻意区分写入者：`CLAUDE.md` 由人写，Auto Memory 由 Claude 写。两者在每次会话启动时进入上下文，但都只是 context，不是强制配置；真要阻止动作，需使用 hook 或权限设置。
+这套问题会得到一张与“功能列表”完全不同的地图。
 
-规则还有作用域：组织、用户、项目、本地，以及子目录按需加载。Auto Memory 则按 Git 仓库归档，多个 worktree 共享同一目录。入口 `MEMORY.md` 是精简索引，详细信息可拆到 topic files；自动进入每个会话的内容被限制为前 200 行或 25KB。
+| 系统 | 它首先把 Memory 看成什么 | 默认解决的主要问题 |
+|---|---|---|
+| TencentDB Agent Memory | 团队可治理、可装配的经验资产 | 多 Agent 如何共享不同类型的经验 |
+| Mem0 | 有 scope 的可检索记忆记录 | 怎样把对话压缩成可查询的个性化事实 |
+| Graphiti | 带时间窗口和来源的上下文图 | 事实变化后，怎样知道什么现在为真 |
+| Letta + MemFS | Agent 自有的 Git 记忆仓库 | Agent 如何读写、版本化和整理自己的长期状态 |
 
-这套设计的价值不在“Markdown 很简单”，而在三个工程属性：
+## TencentDB：把经验变成团队可装配资产
 
-- 人能直接读、改、删除和 diff；
-- 项目规则可跟随 Git，个人学习保持机器本地；
-- 用索引 + 按需读取控制 prompt 成本。
+TencentDB 最值得看的地方，不是它又实现了一个向量检索接口，而是它把“记忆”拆成了四种不同资产：Chat Memory、Skill、Wiki 和 CodeGraph。当前默认分支的 [AssetType、AssetEntity 和 FixedAssetBindingEntity](https://github.com/TencentCloud/TencentDB-Agent-Memory/blob/97f94654280b2932c35ba4806a491999ed244cc9/MemoryCore/src/metadata/types.ts) 统一登记了资产类型、Owner、Team、Visibility、版本、注入模式和 Agent Binding，但没有强行把四类资产压成同一种底层记录。
 
-边界也很明显：文件没有天然的时间有效性、实体冲突和多写者一致性。文档甚至提醒，冲突规则可能被任意选择，过长文件会降低遵循率。因此它适合单机、单用户、以项目为中心的 Agent；进入多人共享、跨设备或强审计环境后，就需要额外的治理层。
+这意味着它的主抽象其实是控制面。Chat Memory 可以保存跨会话事实，Skill 是带资源目录和版本的程序性知识，Wiki 和 CodeGraph 则更像外部知识资产。统一的是身份、权限和装配关系，底层构建和读取方式仍然不同。
 
-来源：[Claude Code memory 官方文档](https://code.claude.com/docs/en/memory)。
+### 记住之后，还要决定怎么交付
 
-## Codex：规则是规则，回忆是回忆
+TencentDB 的 Chat Memory 仍然有 L0 到 L3 的分层。更有意思的是召回阶段：[auto-recall.ts](https://github.com/TencentCloud/TencentDB-Agent-Memory/blob/97f94654280b2932c35ba4806a491999ed244cc9/MemoryCore/src/core/hooks/auto-recall.ts) 把相对稳定的 L2/L3 放到 system context，把每轮变化的 L1 放进动态 user prefix，并对检索设置超时、条数和字符预算。
 
-Codex 的设计给了一个很清楚的原则：**必须遵守的团队指导放进 `AGENTS.md` 或版本库文档；memories 只是有帮助的 recall layer。**
+这不是简单地“把更多记忆塞进 prompt”，而是把稳定概览和动态细节放在不同的上下文位置。我的理解是，它在同时优化三件事：让 Agent 看到足够的背景，避免每轮重复传输稳定内容，以及给动态召回留出可控预算。真实 KV cache 收益仍取决于模型服务商和请求形态，源码本身不能证明这个收益一定出现。
 
-本地 memories 默认关闭。开启后，Codex 会从符合条件的旧会话生成本地记忆文件，跳过仍活跃或太短的会话，并在后台更新，而不是在聊天结束时立即写。生成过程还可因剩余配额过低而跳过。配置进一步拆开 `generate_memories` 和 `use_memories`，并提供 extract model 与 consolidation model；如果会话使用了 MCP、网页搜索或工具搜索，也可以排除其进入记忆生成。
+Wiki 和 CodeGraph 走的是另一条路径。Agent 先通过 [MemoryKnowledge/src/routes/tools.ts](https://github.com/TencentCloud/TencentDB-Agent-Memory/blob/97f94654280b2932c35ba4806a491999ed244cc9/MemoryKnowledge/src/routes/tools.ts) 的白名单发现工具，再按需搜索页面、读取代码或探索 callers、callees 和 impact。知识不必整库注入，Agent 也不会因此获得管理操作。
 
-这个 `disable_on_external_context` 很值得写进文章。它反映的不是一个小开关，而是 provenance 风险：外部网页和工具返回值可能短期有效、被污染或包含不应长期固化的内容。成熟系统开始问“这个会话有没有资格成为训练未来自己的材料”。
+### 团队记忆的难点是装配，不只是可见
 
-Codex 的本地目录包含 summaries、durable entries、recent inputs 和 supporting evidence。把“证据”保留下来，也说明长期记忆不应只是孤立的一句话；以后要纠错，至少应能追溯它从哪些会话中得出。
+[permission-checker.ts](https://github.com/TencentCloud/TencentDB-Agent-Memory/blob/97f94654280b2932c35ba4806a491999ed244cc9/MemoryCore/src/metadata/service/permission-checker.ts) 把“用户能不能操作资产”和“资产能不能绑定给目标 Agent”拆成两个判断。这个区分非常关键：一个人能读一份 Skill，不代表他可以把这份 Skill 装配到所有 Agent 上。
 
-来源：[Codex memories 官方文档](https://learn.chatgpt.com/docs/customization/memories)、[Codex AGENTS.md 官方文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)。
+Skill 更新也不是替换一段 Prompt。[skill-versioning.ts](https://github.com/TencentCloud/TencentDB-Agent-Memory/blob/97f94654280b2932c35ba4806a491999ed244cc9/MemoryCore/src/core/skill/skill-versioning.ts) 会复制旧资源、应用资源变化、创建新版本，在失败时清理目录，内容未变化时保持幂等。这里的记忆单元已经接近一个可审查的软件资产。
 
-## Gemini CLI：自动记忆先进入候选箱，不直接改大脑
+这套设计的代价同样清楚：多服务、异步构建、权限、队列、Proxy 和多种存储共同组成了较大的运维面。当前 README 仍把 Team Memory 标为 Beta，自动路由、私有仓库和 SSH 接入也在完善。它适合需要多人、多 Agent 共享异构经验的团队，不适合只有少量偏好记忆的单 Bot。
 
-Gemini CLI 的 Auto Memory 更像一条受控的数据管道。它当前是实验功能，默认关闭。服务在后台扫描本地旧会话，只有空闲至少三小时且包含至少十条用户消息的 session 才有资格；活跃、琐碎和 sub-agent session 被忽略。
+## Mem0：把事实变成可追加的记忆记录
 
-它不会直接修改生效中的记忆，而是生成两类候选：
+关于 Mem0，最容易过时的是沿用早期“四个操作由 LLM 决定”的文章。当前 main 的 OSS v3 写入路径已经发生了变化。
 
-- 用 unified diff `.patch` 表达的 memory update；
-- 可复用流程的 `SKILL.md` 草稿。
+[Memory._add_to_vector_store](https://github.com/mem0ai/mem0/blob/001c235229be8795e3834520467bd0d661ed8f34/mem0/memory/main.py#L879-L1206) 先读取最近消息和相似旧记忆，再用一次 LLM 调用生成新增记忆。随后代码批量生成 embedding、用 hash 去重、写入向量存储和 history，并统一返回 event: ADD。对应的 [ADDITIVE_EXTRACTION_PROMPT](https://github.com/mem0ai/mem0/blob/001c235229be8795e3834520467bd0d661ed8f34/mem0/configs/prompts.py#L464-L960) 甚至明确把操作限定为 ADD。
 
-候选进入项目本地 inbox，用户可以批准、提升或丢弃。并发 CLI 由 lock file 协调，state file 记录已处理的会话版本，避免重复抽取。补丁还要经过路径 allowlist、dry-run 与原子应用。
+这是一种很有意图的保守性：自动抽取不会因为一次模型判断就直接删掉一条旧记忆。显式的 [update() 和 delete()](https://github.com/mem0ai/mem0/blob/001c235229be8795e3834520467bd0d661ed8f34/mem0/memory/main.py#L1815-L1905) 仍然存在，但它们是应用或上层工作流调用的 API，不是当前自动 add() 主路径的隐式副作用。
 
-这套流程首次把“事实记忆”和“程序性记忆”一起处理：重复出现的偏好、约束进入 memory；可复用的操作过程提升成 skill。它比“把全部对话 embedding 后搜索”更接近真正的知识工程。
+仓库里仍保留旧的 DEFAULT_UPDATE_MEMORY_PROMPT，而 add() 的 docstring 也还写着会决定 add、update、delete。这正是研究快速迭代项目时不能只搜 prompt 的原因：运行路径、测试和新版文档才共同决定当前行为。Mem0 Add 文档已经把 OSS 和 Platform 的 Add behavior 都写成 ADD-only。
 
-Gemini 的 checkpointing 又是另一条线：在工具修改文件前，用 shadow Git repo 保存项目快照，同时记录对话历史和工具调用；恢复时可以还原文件、对话，并重新提出对应工具调用。它解决的是执行回滚，不是长期学习。这正好证明 session state 与 semantic memory 不能混为一谈。
+### 记录不是只有向量
 
-来源：[Gemini CLI Auto Memory](https://geminicli.com/docs/cli/auto-memory/)、[Gemini CLI checkpointing](https://geminicli.com/docs/cli/checkpointing/)、[Gemini CLI memory management](https://geminicli.com/docs/cli/tutorials/memory-management/)。
+Mem0 当前 OSS 的搜索也比“向量库封装”丰富。[Memory._search_vector_store](https://github.com/mem0ai/mem0/blob/001c235229be8795e3834520467bd0d661ed8f34/mem0/memory/main.py#L1628-L1731) 同时执行 semantic search 和 keyword search；查询还会抽取实体，通过 entity store 找到关联的 memory，再把 entity boost 交给 score_and_rank。启用 explain 时，可以看到 semantic、BM25、entity 和最终分数的明细。
 
-## OpenCode：摘要可以有损，但历史不能假装没发生
+记录也有明确 scope。user_id、agent_id、run_id 进入 filters，metadata 不能覆盖创建时的身份字段。这样做的优点是接入简单，应用可以决定每次把哪个用户、Agent 或运行范围交给搜索；代价是上下文装配和跨 scope 治理仍然主要由应用负责。
 
-OpenCode V2 把 compaction 定义成“用 checkpoint 替换活动模型上下文中较老的一段”。checkpoint 包含结构化 summary 和序列化的 recent tail。后续模型请求从最新完成 checkpoint 与其后的消息重新组装。
+### 不要把 Platform 的遗忘能力写成 OSS 能力
 
-关键在于：compaction 有损，但不会删除之前的 durable session messages。运行中和失败的 compaction 不进入模型上下文；完成的 checkpoint 作为历史对话呈现，并明确不是新指令。旧记录仍可用于审计，即使模型当前看不到。
+OSS 支持 expiration_date。过期记录默认从 search 和 get_all 隐藏，这更接近硬过期。Platform 的 Memory Decay 是另一种语义：官方文档描述它在搜索时把分数乘以约 0.3 到 1.5 的缩放因子，并记录访问历史；它不删除候选，也不改变存储内容。
 
-OpenCode 还把文件 snapshot 分离出来。每个模型 step 前后尝试把工作树存进独立 Git object database，回滚对话时可恢复相关路径。但文档明确承认它不能撤销数据库、服务、进程、网络资源、Git 状态和目录外文件的副作用。
+而在当前 OSS 代码中，project.update(decay=True) 会明确抛出不支持错误，相关测试也锁定了这个边界。把 decay、temporal reasoning 或 graph memory 从 Platform 文档直接搬到 OSS 文章里，会得到一个看似完整但事实错误的 Mem0。
 
-这比“有一个撤销按钮”更真实：Agent 的执行状态从来不只在 prompt 里。一个可靠的 Agent OS 必须标注恢复边界，而不是把 summary、文件快照和外部世界混成“记忆”。
+我的判断是，Mem0 现在把“自动写入的破坏性”降下来了，却把冲突清理责任显式化了。对于个性化偏好，这是很务实的折中；对于不断变化的业务事实，则需要额外的更新、过期或审查工作流。
 
-来源：[OpenCode V2 compaction](https://opencode.ai/v2/docs/compaction)、[OpenCode V2 snapshots](https://opencode.ai/v2/docs/snapshots)。
+## Graphiti：把变化中的真相变成时间化事实图
 
-## DSH：它的 memory 底座是 event sourcing
+Graphiti 解决的是另一个问题。它不把长期状态主要看成互相独立的文本记录，而是保留产生事实的 episode，再从 episode 派生实体和关系。
 
-如果说前面几个产品从用户体验出发，DSH 则直接暴露了运行时骨架。
+调用 [Graphiti.add_episode](https://github.com/getzep/graphiti/blob/10374d6044f91b9ecae3586828abb1ecbf022c4f/graphiti_core/graphiti.py#L980-L1228) 时，系统保存 episode 的原始内容、来源类型、来源描述、创建时间和参考时间，接着抽取并解析 nodes、edges，生成实体摘要，最后把 episode、节点、边和失效边一起写入图。官方 docstring 还建议 episode 按顺序添加，并把这项工作放在后台队列中。
 
-DSH 的 `Session` 是 typed `SessionEvent` 的 append-only log，也是唯一真相源。模型消息由 `deriveMessages()` 从日志派生；raw stream chunk 用于 token 级 replay，组装后的 `assistant/message` 才是消息投影的权威记录。fork 与 replay 的本质，是用既有日志为新 session 播种。
+### “旧事实不是真的了”不等于删除
 
-它把 I/O 从热路径移走：append 同步发生，持久化插件 write-behind，在每个 turn 结束时通过可等待的 flush 落盘。默认 JSONL 后端进一步使用 Zstandard：header 独占一帧，每个 durable append batch 独占一帧。于是 frame boundary 同时承担压缩、checksum、fsync commit 和 torn-tail crash repair 的边界。
+[EntityEdge](https://github.com/getzep/graphiti/blob/10374d6044f91b9ecae3586828abb1ecbf022c4f/graphiti_core/edges.py#L263-L295) 保存 fact、episodes、valid_at、invalid_at、expired_at 和 reference_time。这里至少有两种时间：事实在现实世界何时成立，以及系统何时接收到并处理了它。[resolve_extracted_edge](https://github.com/getzep/graphiti/blob/10374d6044f91b9ecae3586828abb1ecbf022c4f/graphiti_core/utils/maintenance/edge_operations.py#L623-L847) 会把新事实与相同端点的旧边交给去重和矛盾解析；较旧的冲突边被标记失效，但不会直接从历史中抹掉。
 
-DSH 的 compaction 也不是悄悄覆盖一段数组。它记录 `compaction/start`、`compaction/summary`、用于替换 surface 的消息，以及最后的 `compaction/end`。如果中途崩溃，只有 start 没有 end 会留下可检测的孤儿锁；summary 还记录被遮蔽范围、seq、token、provider、model 和 usage。模型看到的是压缩后的 surface，系统仍保留生成它的证据。
+这让 Graphiti 能表达两种经常被混淆的查询：现在什么是真的，以及某个历史时刻什么是真的。它也让 provenance 成为查询结果的一部分，而不是写入时顺手丢掉的日志。
 
-最重要的是，DSH 没把跨会话语义记忆硬塞进核心。官方仓库给 Memorix、Reference Memory 和 Engram 提供默认关闭的 MCP overlay 示例，但明确把账号、模型、embedding、存储初始化、迁移、重试和故障恢复留给上游 provider 或用户。它支持 memory，却拒绝把某一家的语义抽取模型变成 Agent loop 的固定组成。
+### 图只是数据模型，检索仍是一条工程链
 
-所以 DSH 更像 Agent OS 底座：原生保证“过去能被重放和解释”，长期记忆则是可插拔能力。这与 TencentDB Agent Memory 并不竞争；前者是运行时证据层，后者可以成为共享知识与治理层。
+[Graphiti edge_search](https://github.com/getzep/graphiti/blob/10374d6044f91b9ecae3586828abb1ecbf022c4f/graphiti_core/search/search.py#L253-L440) 可以并行执行 BM25、cosine similarity 和 BFS。随后根据配置选择 RRF、MMR、cross-encoder 或 node distance。当前实现会先用 RRF 合并候选，再把最多 2 * limit 个 edge 交给 cross-encoder，相关回归测试专门验证了不同召回路的候选不会被某一路吞掉。
 
-来源：[DSH event-sourced sessions](https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/99f6f02fecdb7dff40c3fbc9470f5907c29f74ca/.agents/notes/implemented/architecture/2026-06-11-event-sourced-sessions.md)、[DSH compaction](https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/99f6f02fecdb7dff40c3fbc9470f5907c29f74ca/docs/subsystems/compaction.md)、[DSH Zstandard JSONL](https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/99f6f02fecdb7dff40c3fbc9470f5907c29f74ca/.agents/notes/implemented/architecture/2026-07-19-zstandard-jsonl-session-logs.md)、[DSH third-party memory MCP examples](https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/99f6f02fecdb7dff40c3fbc9470f5907c29f74ca/.agents/notes/implemented/feature/2026-07-31-third-party-memory-mcp-examples.md)。
+这解释了 Graphiti 的强项，也说明了它的成本：图数据库、embedding、LLM 抽取、候选召回和排序每一层都可能失败。Graphiti OSS 负责图引擎本身，不负责完整的用户、会话和企业治理；README 中关于百万级图、低延迟和 SLA 的描述属于 Zep 的托管产品，不能直接归给开源库。
 
-## OpenClaw 与 Hermes：文件记忆也有两条路线
+如果你的核心问题是“客户地址变更后，旧地址何时失效，以及这个判断来自哪次对话”，Graphiti 的数据模型比一组孤立的向量记忆更接近问题本身。它并不因此自动得到更高召回质量，抽取错误和候选漏召回仍然会把错误事实写进图。
 
-OpenClaw 采用冷热分层。精选事实进入 `MEMORY.md`，每日日志进入 `memory/YYYY-MM-DD.md`；今天和昨天的 notes 可被自动装载，较老内容通过搜索读取。上下文接近压缩前，系统还会进行一次静默 memory flush，把值得长期保存的事实写盘，再对当前会话做 summary。这是“先落事实，再压上下文”。
+## Letta：让 Agent 自己维护一份版本化记忆仓库
 
-Hermes 更激进地限制规模：`MEMORY.md` 与 `USER.md` 有硬字符上限，在 session 启动时作为冻结快照注入。写入超限会失败，Agent 必须先合并或删除。它没有假装记忆可以无限增长，而是把遗忘变成系统契约。
+如果只看旧文章，Letta 常被概括为拥有 always-visible memory blocks 的 stateful agent。当前 SDK 已经在转向另一个更完整的模型。
 
-两者共同说明：文件不只是廉价替代品。只要有明确作用域、预算、冷热层、搜索和压缩策略，它可以是一套可用的个人 Agent memory。但它们也暴露共同难题：谁判断事实过期？两个 Agent 同时写怎么办？如何保留来源与版本？这些才是外部 memory infrastructure 的机会。
+在 [CreateAgentOptions](https://github.com/letta-ai/letta-agent-sdk/blob/072b8bf07dac806c1f5e15118ed0e483fb2f7ecc/src/types.ts#L895-L939) 中，memory、persona 和 human 都被标为 deprecated，注释明确建议使用 Git-backed memory filesystem；memfs 默认值是 true。[createAgentBody](https://github.com/letta-ai/letta-agent-sdk/blob/072b8bf07dac806c1f5e15118ed0e483fb2f7ecc/src/agent-creation.ts#L65-L100) 会把它转换成创建请求的 enableMemfs 字段。旧 block API 还在，但已经不是最新推荐的主抽象。
 
-来源：[OpenClaw memory](https://docs.openclaw.ai/concepts/memory)、[OpenClaw main session](https://docs.openclaw.ai/concepts/main-session)、[Hermes memory](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory/)。
+### 路径本身就是上下文策略
 
-## 为什么它们没有一上来就内置向量数据库
+Letta 的 MemFS 是 Agent 自己拥有的一份 Git 仓库。[当前官方文档镜像](https://github.com/letta-ai/letta-docs-md/blob/9a8305b954ffac89db8cf325693f928fba8f3bb7/concepts/memfs/index.md) 把它描述成“把仓库投影到 Agent 正在使用的计算机上”：
 
-对 coding agent，最先要解决的不是“在十万条事实中相似搜索”，而是以下问题：
+- system/ 下的 Markdown 文件每一轮进入 system prompt，适合身份、关键偏好和必须遵守的规则。
+- 其他文件的正文不常驻，但文件树会出现在上下文里，Agent 根据路径和文件名决定什么时候读取。
+- 默认没有 semantic 或 vector index。需要关键词、语义或混合搜索时，另装 MemFS Search mod。
 
-- 当前规则是否明确、可版本化？
-- 工具调用发生后，系统能否恢复到一致状态？
-- context overflow 时，哪些内容被丢弃，原始证据是否仍在？
-- 一次失败是否会被错误提炼成永久偏好？
-- 多个项目、worktree、用户和 Agent 的作用域如何隔离？
+这是一种很特别的检索设计。系统不先替 Agent 猜 top-k，而是给它一个可导航的目录，让 Agent 主动选择要读的文件。它牺牲了“对模糊问题自动找全”的便利，换来了可读的结构和较明确的上下文预算。
 
-Markdown、event log 和 checkpoint 的优势是确定、透明、便宜并且容易进入 Git 或本地文件系统。向量检索解决的是另一类问题：当知识量超过 prompt、需要语义召回或跨用户共享时，怎样在候选集合中找到相关信息。
+### 写入记忆就是一次可审计的工作流
 
-如果底层会话连可重放性都没有，接再好的向量数据库也只是让 Agent 更快地找到一条可能错误的总结。
+Letta Code 发布版对应的 [memory tool](https://github.com/letta-ai/letta-code/blob/a75f4d93ef1c61946c7f3e4dec2b3ecf17c17680/src/tools/impl/memory.ts#L98-L153) 支持 create、str_replace、insert、delete 和 rename。每次有效变更都会检查仓库状态、写入文件、生成 Git commit，并根据后端模式在 turn 后同步。路径遍历、只读文件和 dirty repo 也有明确保护。
 
-## TencentDB Agent Memory 应该放在哪里
+于是“记忆更新”不再只是后台 API 的副作用，而是 Agent 可以执行、查看 diff、回滚和审查的工作流。memory subagent 还会利用 Git worktree 分拆大文件、合并重复事实和重组层级；dreaming 则在后台回顾对话并更新记忆。
 
-你之前的 TencentDB Agent Memory 报告已经覆盖了 Chat Memory、Skill、Wiki、CodeGraph，以及统一 metadata、binding 与治理。新文章不应再重复“它比向量数据库多哪些功能”，而应回答它和 Agent runtime 的接缝。
+共享也沿着 Git 边界实现。Letta 的 shared memory repository 可以附加给多个 Cloud Agent，并设置 read 或 read_write 权限。它和 Agent 自己的 MemFS 是两种所有权：前者属于组织，后者属于单个 Agent。
 
-一个合理的组合是：
+代价同样写在 SDK 注释里：启用 MemFS 会增加后端往返，多会话共用 MemFS 会争用 Git state。Git 能告诉我们谁在什么时候改了哪一行，却不能自动证明某条事实是真的；记忆质量最终依赖 Agent 的判断、整理和审查行为。
 
-```mermaid
-flowchart LR
-  R["Agent Runtime\nDSH / OpenCode / Codex"] --> E["Durable Evidence\nevents / transcripts / checkpoints"]
-  E --> X["Extraction & Promotion\n资格判断 / 去重 / 审批 / consolidation"]
-  X --> M["Shared Memory Plane\nTencentDB / Mem0 / Graphiti / Letta"]
-  M --> G["Retrieval Gate\nscope / time / provenance / budget"]
-  G --> R
-```
+## 同一个需求，四种后果
 
-运行时负责精确事件、执行状态、压缩和恢复；外部记忆层负责跨 session、跨 Agent、跨设备的知识抽取、检索、版本、权限和治理。中间的 extraction/promotion pipeline 决定什么能从“发生过”升级为“以后应该记住”。
+假设用户先说“我喜欢咖啡”，后来改成“我现在更喜欢茶”。四个系统不会产生同一种状态：
 
-TencentDB 的真正卖点因而不是替换 `MEMORY.md`，而是在文件方案开始失效时提供控制面：
+| 系统 | 可能的当前路径 | 留下的责任 |
+|---|---|---|
+| Mem0 | v3 自动 add 追加新的上下文丰富事实；旧记录不会被自动删除，应用可显式 update/delete | 定期处理重复、冲突和过期记录 |
+| Graphiti | 新 edge 带有效时间进入图，矛盾解析让旧 edge 写入 invalid_at，原 episode 继续保留 | 确保冲突候选被召回且时间抽取正确 |
+| Letta | Agent 修改对应 Markdown 文件并提交 Git；历史 diff 可回看 | 让 Agent 正确判断哪些偏好是长期的 |
+| TencentDB | Chat Memory 按分层 pipeline 沉淀；如果是团队规则或做法，还可能进入 Skill 等不同资产，并由 binding 与 ACL 决定交付 | 明确不同资产之间的权威和审核边界 |
 
-- 多 Agent/多人共享与权限隔离；
-- 时间有效性、版本和 provenance；
-- Chat、Skill、Wiki、CodeGraph 的统一绑定；
-- 大规模知识的语义与结构检索；
-- 删除、过期、审计与成本治理。
+这不是谁“实现得更完整”的问题，而是四种错误模式：Mem0 可能积累矛盾记录，Graphiti 可能抽取错时间，Letta 可能让 Agent 写错长期状态，TencentDB 可能让跨资产治理变复杂。架构评审应该先选择自己愿意承担哪一种错误。
 
-## 目前主流设计仍没解决好的问题
+## 怎么选，怎么组合
 
-### 1. 错误会被“巩固”
+### 适合 Mem0 的场景
 
-summary 和抽取模型都可能把一次偶然修复写成通用规律。之后每次注入又提高它的可信度，形成错误自强化。审批能降低风险，但会带来维护负担；全自动写入更顺滑，却更容易污染。
+单用户或单 Agent 的个性化事实、偏好和轻量跨会话状态。你希望快速接入，保留应用对 scope、filters 和 prompt assembly 的控制，也愿意自己负责清理和更新。
 
-### 2. 遗忘通常只是删文件
+### 适合 Graphiti 的场景
 
-大多数系统有大小限制或手工删除，却缺少基于时间、置信度、使用频率和事实冲突的系统性遗忘。Graphiti 的 temporal invalidation 是一个方向，但成本和复杂度更高。
+业务事实持续变化，并且查询需要回答“何时成立、何时失效、来自哪个 episode”。例如客户关系、设备状态、组织关系和带历史的决策记录。你需要接受图数据库和抽取链路的运营成本。
 
-### 3. 来源仍然太弱
+### 适合 Letta 的场景
 
-“用户偏好 pnpm”应该能回答：用户何时说的、在哪个项目、是否已被后续行为推翻。只有 value 没有 evidence 的记忆，很难安全纠正。
+Agent 本身就是长期运行的主体，需要跨会话、模型和设备保持身份、工作方法和项目上下文，并且你愿意让 Agent 直接维护可读、可版本化的文件。不要把它当成一个无状态的记忆 API。
 
-### 4. 并发与共享会破坏文件模型
+### 适合 TencentDB 的场景
 
-多个 sub-agent、worktree 或设备可能同时更新同一记忆。lock 能解决单机抽取互斥，却不能自动解决语义冲突和跨设备同步。
+多个成员和多个 Agent 要共享 Chat Memory、Skill、文档和代码知识，而且团队需要 Owner、ACL、版本和定向装配。你接受 Beta 组件、多服务部署和异步最终一致性。
 
-### 5. Memory eval 仍不成熟
+### 组合时先写 ownership matrix
 
-常见 benchmark 测“隔很久还能否答出某事实”，但真实开发更关心：过期事实会不会被遗忘、错误会不会固化、规则冲突如何处理、恢复后文件与对话是否一致，以及每次召回花多少 token。
+四套系统可以组合，但不要让它们同时对同一类事实拥有写权限。一个可行的起点是：
 
-## 建议做一套真正有内容的实验
+1. 为每种长期状态指定唯一权威来源，例如用户偏好由 Mem0 负责，时序业务事实由 Graphiti 负责，Agent 工作方法由 Letta 或 TencentDB Skill 负责。
+2. 其他系统只能读取派生视图，不能把派生结果写回另一个真相源。
+3. 为失效和删除定义单向事件，而不是在多个系统里各自猜测“现在应该是什么”。
+4. 记录 provenance、版本和同步失败，允许从原始事件重建派生记忆。
+5. 单独测量记忆增强失败时主 Agent 是否还能工作。
 
-如果把这篇调研写成网站的代表作，最好不止停在文档对比。可以给 Claude Code、Codex、Gemini CLI、OpenClaw 与 Hermes 喂同一套“30 天项目演进”剧本：
+## 结论：没有标准答案，但有标准问题
 
-1. 第 1 天声明用 npm；第 8 天迁移到 pnpm，测试旧事实是否失效。
-2. 第 3 天故意给出错误构建命令，第 4 天纠正，测试污染与纠错。
-3. 在两个 worktree 中给出冲突偏好，测试 scope 与并发。
-4. 让会话跨过多次 compaction，检查规则、未完成任务和文件路径的保真度。
-5. 中途终止工具调用，恢复 session，检查对话、文件与外部副作用是否一致。
-6. 让一个 Agent 写 memory，另一个 fresh session 召回，测跨会话成功率。
-7. 记录每轮注入 token、后台抽取调用、人工审批次数和最终错误率。
+目前没有一个项目同时在轻量接入、时间事实、Agent 自治和团队治理上都占优，也没有统一实验能证明它们在相同成本下的质量排序。
 
-最终指标不只是 recall@k，而应至少包括：
+但这四个项目共同说明了一件事：Agent Memory 的下一阶段，不会只是把更多历史文本放进更大的向量库。系统必须明确长期状态的权威、写入权、冲突处理、时间、来源、上下文位置和共享边界。
 
-- durable fact recall；
-- stale fact rejection；
-- correction latency；
-- false consolidation rate；
-- provenance coverage；
-- recovery consistency；
-- prompt token overhead；
-- human maintenance cost。
+如果你正在设计一个新 Agent，最值得先写下来的不是数据库 schema，而是下面这句话：
 
-## 最终判断
+> 对于这类记忆，谁有权把什么写成长期状态；当它不再成立时，系统要删除、失效、降权、归档，还是提交一个新版本？
 
-2026 年主流 Agent memory 的分水岭，已经不是“文件还是向量库”。真正的架构差异是：
-
-- 是否把规则、会话状态和长期学习分开；
-- 是否保存可重建的原始证据；
-- 是否让记忆写入经过资格判断与安全门；
-- 是否有明确预算、合并与遗忘机制；
-- 是否能在个人本地记忆与组织共享控制面之间建立干净边界。
-
-因此，最值得写的文章不是又一篇 memory 产品功能表，而是解释一个反常识结论：**Agent 的第一层记忆不是向量数据库，而是一套可审计、可恢复、可遗忘的状态生命周期。**
-
-这也给你的网站形成了非常好的连续选题：先用这篇建立四层框架，再分别深挖 DSH 的 event sourcing、Gemini/Codex 的后台 consolidation，以及 TencentDB 如何承接共享治理层。这样既能复用旧报告，又不会重复旧报告。
+这个问题回答清楚之后，TencentDB、Mem0、Graphiti 和 Letta 才会从“热门项目”变成可以被理性选择的系统部件。

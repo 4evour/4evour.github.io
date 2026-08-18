@@ -1,0 +1,7 @@
+topic: "Agent Memory 还没有标准答案：TencentDB、Mem0、Graphiti、Letta 的四种记忆观"
+stage: research
+research_date: 2026-08-18
+commit: "multi-project; see source-state.md"
+claim_ledger: claim-ledger.md
+status: complete
+open_questions: open-questions.md
