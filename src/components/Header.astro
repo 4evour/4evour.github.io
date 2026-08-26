@@ -1,30 +1,63 @@
 ---
 import { Icon } from "astro-icon/components";
 
+const pathname = Astro.url.pathname;
 const links = [
-  { href: "/", label: "首页" },
-  { href: "/blog/", label: "文章" },
-  { href: "/search/", label: "搜索" },
-  { href: "/projects/", label: "项目" },
-  { href: "/about/", label: "关于" },
+  { href: "/", label: "主页", active: pathname === "/" },
+  { href: "/projects/", label: "项目", active: pathname.startsWith("/projects/") },
+  { href: "/blog/", label: "文章", active: pathname.startsWith("/blog/") },
 ];
 ---
 
 <header class="site-header">
-  <nav class="container nav" aria-label="主导航">
-    <a class="brand" href="/" aria-label="4evour 首页">
-      <span class="brand-mark">4e</span>
-      <span>4evour blog</span>
-    </a>
-    <div class="nav-links">
-      {links.map((link) => <a href={link.href}>{link.label}</a>)}
-      <a class="icon-link" href="/rss.xml" aria-label="RSS 订阅">
-        <Icon name="lucide:rss" aria-hidden="true" />
+  <div class="container nav-shell">
+    <div class="nav-masthead">
+      <a class="brand" href="/" aria-label="4evour 首页">
+        <span class="brand-avatar" aria-hidden="true">
+          <img src="/images/github-avatar.png" alt="" width="36" height="36" loading="eager" />
+        </span>
+        <span class="brand-name">4evour</span>
       </a>
-      <button class="theme-toggle" type="button" aria-label="切换明暗主题" data-theme-toggle>
-        <Icon class="theme-icon theme-icon-light" name="lucide:sun" aria-hidden="true" />
-        <Icon class="theme-icon theme-icon-dark" name="lucide:moon" aria-hidden="true" />
-      </button>
+      <nav class="nav-primary" aria-label="主导航">
+        <div class="nav-links">
+          {links.map((link) => (
+            <a href={link.href} aria-current={link.active ? "page" : undefined}>{link.label}</a>
+          ))}
+        </div>
+      </nav>
+      <div class="nav-utility">
+        <a class="icon-link" href="/search/" aria-label="搜索">
+          <Icon name="lucide:search" aria-hidden="true" />
+        </a>
+        <button class="theme-toggle" type="button" aria-label="切换明暗主题" data-theme-toggle>
+          <Icon class="theme-icon theme-icon-light" name="lucide:sun" aria-hidden="true" />
+          <Icon class="theme-icon theme-icon-dark" name="lucide:moon" aria-hidden="true" />
+        </button>
+      </div>
     </div>
-  </nav>
+  </div>
 </header>
+
+<style>
+  .brand,
+  .nav-utility {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .nav-masthead {
+    display: grid;
+    align-items: center;
+  }
+
+  .nav-utility,
+  .nav-utility a,
+  .theme-toggle {
+    flex: 0 0 auto;
+  }
+
+  .nav-links {
+    display: grid;
+  }
+</style>

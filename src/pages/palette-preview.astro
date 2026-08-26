@@ -1,0 +1,359 @@
+---
+const palettes = [
+  {
+    name: "冰川深蓝",
+    note: "推荐 · 清爽、克制，最能衬托底图的冰蓝光感",
+    tone: "#172E38",
+    text: "#F4F8F7",
+    accent: "#70C7D4",
+  },
+  {
+    name: "冷杉墨绿",
+    note: "沉稳、统一，与竞赛区域的深绿色衔接自然",
+    tone: "#1D332E",
+    text: "#F3F2E9",
+    accent: "#86C7B2",
+  },
+  {
+    name: "雾霁蓝灰",
+    note: "轻一些、柔和一些，保留安静的个人博客气质",
+    tone: "#49646B",
+    text: "#FAF8F2",
+    accent: "#B1DEE0",
+  },
+  {
+    name: "夜幕藏青",
+    note: "更有夜色与文学感，二次元氛围也更明显",
+    tone: "#26364F",
+    text: "#F7F3EC",
+    accent: "#A9BDE8",
+  },
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>首页配色预览 | 4evour</title>
+    <meta name="description" content="4evour 个人博客首页的四套配色对比。" />
+  </head>
+  <body>
+    <main>
+      <header class="preview-heading">
+        <a href="/" aria-label="返回博客首页">← 返回首页</a>
+        <div>
+          <p>Color study / 2026</p>
+          <h1>四套首屏配色</h1>
+          <span>同一张底图、同一套模板，只比较颜色。每张底图都保留原来的呼吸动画。</span>
+        </div>
+      </header>
+
+      <section class="palette-grid" aria-label="首页配色方案">
+        {palettes.map((palette, index) => (
+          <article
+            class="palette-card"
+            style={`--tone: ${palette.tone}; --preview-text: ${palette.text}; --preview-accent: ${palette.accent}; --phase: -${index * 2.6}s;`}
+          >
+            <header class="palette-meta">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h2>{palette.name}</h2>
+                <p>{palette.note}</p>
+              </div>
+            </header>
+
+            <div class="hero-mockup">
+              <div class="hero-copy">
+                <p class="hero-label">4evour blog</p>
+                <h3><em>4evour</em> Profile</h3>
+                <p class="hero-intro">
+                  你好，我是 4evour。现在主要学习软件工程，做 AI 应用和算法相关的项目，并记录其中值得复盘的判断与过程。
+                </p>
+                <div class="hero-actions" aria-hidden="true">
+                  <span class="primary">阅读文章</span>
+                  <span>了解我</span>
+                </div>
+              </div>
+            </div>
+
+            <footer class="palette-values" aria-label={`${palette.name} 色值`}>
+              <span><i style={`background: ${palette.tone}`}></i>背景 <code>{palette.tone}</code></span>
+              <span><i style={`background: ${palette.text}`}></i>文字 <code>{palette.text}</code></span>
+              <span><i style={`background: ${palette.accent}`}></i>强调 <code>{palette.accent}</code></span>
+            </footer>
+          </article>
+        ))}
+      </section>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light;
+    font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #e9ece9;
+    color: #202623;
+  }
+
+  main {
+    width: min(100% - 2rem, 1280px);
+    margin-inline: auto;
+    padding: 3.5rem 0 5rem;
+  }
+
+  .preview-heading {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    gap: 3rem;
+    align-items: start;
+    margin-bottom: 3rem;
+  }
+
+  .preview-heading > a {
+    width: fit-content;
+    border-bottom: 1px solid #8a928e;
+    padding-bottom: 0.2rem;
+    color: #4c5550;
+    font-size: 0.82rem;
+    text-decoration: none;
+  }
+
+  .preview-heading p {
+    margin: 0 0 0.65rem;
+    color: #65706a;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.72rem;
+  }
+
+  .preview-heading h1 {
+    margin: 0;
+    font-family: "Iowan Old Style", Baskerville, "Songti SC", serif;
+    font-size: clamp(2.7rem, 6vw, 5rem);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .preview-heading div > span {
+    display: block;
+    max-width: 34rem;
+    margin-top: 1rem;
+    color: #65706a;
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .palette-card {
+    padding: 0.85rem;
+    border: 1px solid #c9cecb;
+    border-radius: 0.5rem;
+    background: #f6f7f5;
+    box-shadow: 0 1.2rem 3rem rgba(41, 52, 47, 0.08);
+  }
+
+  .palette-meta {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: start;
+    padding: 0.45rem 0.35rem 0.9rem;
+  }
+
+  .palette-meta > span {
+    color: #7b8580;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.72rem;
+  }
+
+  .palette-meta h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 760;
+  }
+
+  .palette-meta p {
+    margin: 0.25rem 0 0;
+    color: #65706a;
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .hero-mockup {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    min-height: 31rem;
+    place-items: center;
+    border-radius: 0.5rem;
+    background: var(--tone);
+    color: var(--preview-text);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-mockup::before,
+  .hero-mockup::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: "";
+  }
+
+  .hero-mockup::before {
+    background: url("/images/yukino-wallpaper.png") center 34% / cover no-repeat;
+    opacity: 0.5;
+    filter: saturate(0.72) contrast(1.08) brightness(0.68);
+    transform-origin: center 34%;
+    animation: palette-breathe 18s ease-in-out var(--phase) infinite alternate;
+  }
+
+  .hero-mockup::after {
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--tone) 48%, transparent), color-mix(in srgb, var(--tone) 68%, transparent) 68%, var(--tone)),
+      linear-gradient(90deg, color-mix(in srgb, var(--tone) 32%, transparent), color-mix(in srgb, var(--tone) 8%, transparent) 50%, color-mix(in srgb, var(--tone) 32%, transparent));
+  }
+
+  .hero-copy {
+    width: min(100% - 2rem, 31rem);
+    padding: 3.5rem 0;
+  }
+
+  .hero-label {
+    margin: 0 0 1.2rem;
+    color: var(--preview-accent);
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+
+  .hero-copy h3 {
+    margin: 0;
+    font-family: "Iowan Old Style", Baskerville, "Times New Roman", "Songti SC", serif;
+    font-size: clamp(3.4rem, 7vw, 5.2rem);
+    font-weight: 400;
+    line-height: 0.94;
+  }
+
+  .hero-copy h3 em {
+    display: block;
+    font-weight: 400;
+  }
+
+  .hero-intro {
+    max-width: 27rem;
+    margin: 1.7rem auto 0;
+    color: color-mix(in srgb, var(--preview-text) 84%, transparent);
+    font-size: 0.82rem;
+    line-height: 1.75;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+  }
+
+  .hero-actions span {
+    display: grid;
+    width: 8.5rem;
+    min-height: 2.65rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--preview-text) 66%, transparent);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .hero-actions .primary {
+    border-color: var(--preview-text);
+    background: var(--preview-text);
+    color: var(--tone);
+  }
+
+  .palette-values {
+    display: flex;
+    gap: 0.6rem 1rem;
+    flex-wrap: wrap;
+    padding: 0.85rem 0.35rem 0.25rem;
+    color: #65706a;
+    font-size: 0.68rem;
+  }
+
+  .palette-values span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .palette-values i {
+    width: 0.72rem;
+    height: 0.72rem;
+    border: 1px solid rgba(32, 38, 35, 0.18);
+    border-radius: 50%;
+  }
+
+  .palette-values code {
+    color: #343c38;
+    font-size: 0.68rem;
+  }
+
+  @keyframes palette-breathe {
+    from {
+      transform: scale(1);
+    }
+
+    to {
+      transform: scale(1.025);
+    }
+  }
+
+  @media (max-width: 820px) {
+    main {
+      width: min(100% - 1rem, 1280px);
+      padding-top: 2rem;
+    }
+
+    .preview-heading {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .palette-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero-mockup {
+      min-height: 28rem;
+    }
+
+    .hero-actions span {
+      width: 7.7rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-mockup::before {
+      animation: none;
+    }
+  }
+</style>
