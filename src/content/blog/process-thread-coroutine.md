@@ -1,8 +1,9 @@
 ---
 title: "从寄存器到协程：把进程、线程、协程从底层推导一遍"
+category: tech
 description: "从寄存器、内存、栈、中断和页表出发，推导进程、线程与协程的本质、切换开销和适用场景。"
 pubDate: 2026-08-25
-tags: ["操作系统", "并发", "进程", "线程", "协程"]
+tags: ["操作系统", "进程", "线程", "协程"]
 featured: false
 coverTone: "forest"
 coverLabel: "进程 · 线程 · 协程"

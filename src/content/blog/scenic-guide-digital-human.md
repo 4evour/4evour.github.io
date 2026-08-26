@@ -1,5 +1,6 @@
 ---
 title: "我把 Live2D 数字人接进了导览系统"
+category: project
 description: "记录灵山胜境智能导览系统里数字人部分的实现：Open-LLM-VTuber、OpenAI 兼容接口、SSE 流式响应、Live2D 表情和口型同步。"
 pubDate: 2026-05-16
 updatedDate: 2026-06-18

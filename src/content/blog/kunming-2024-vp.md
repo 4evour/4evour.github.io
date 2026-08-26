@@ -1,9 +1,10 @@
 ---
 title: "2024 昆明邀请赛 VP 记录"
+category: algorithm
 description: "把之前 CSDN 上的 VP 记录迁移回来：5 题通过、800 罚时，从贪心、二分填数、异或构造、字符串环处理到前后缀 GCD 的赛后复盘。"
-pubDate: 2024-06-01
+pubDate: 2026-05-18
 updatedDate: 2026-05-18
-tags: ["算法", "ICPC", "VP", "C++"]
+tags: ["算法", "ICPC", "C++"]
 featured: false
 coverTone: "ink"
 coverLabel: "ICPC"

@@ -1,8 +1,9 @@
 ---
 title: "RAG 进阶 · 新一代架构"
+category: tech
 description: "从 RAPTOR、GraphRAG、Agentic RAG 到多模态检索和记忆系统，梳理 2024-2026 年 RAG 架构的演进方向。"
 pubDate: 2026-08-25
-tags: ["RAG", "AI", "知识库", "检索"]
+tags: ["RAG", "知识库", "检索"]
 featured: false
 coverTone: "violet"
 coverLabel: "RAG 进阶"

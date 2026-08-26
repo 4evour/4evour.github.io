@@ -8,13 +8,29 @@ export default defineConfig({
   integrations: [
     expressiveCode({
       themes: ["github-light", "github-dark"],
+      useDarkModeMediaQuery: false,
+      themeCssSelector: (theme) => `[data-theme='${theme.type}']`,
       defaultProps: {
         frame: "code",
       },
     }),
     icon({
       include: {
-        lucide: ["arrow-left", "arrow-right", "arrow-up", "chevron-down", "message-square", "moon", "rss", "search", "sun"],
+        lucide: [
+          "arrow-left",
+          "arrow-right",
+          "arrow-up",
+          "arrow-up-right",
+          "chevron-down",
+          "message-square",
+          "moon",
+          "rss",
+          "search",
+          "search-x",
+          "sun",
+          "tags",
+          "x",
+        ],
       },
     }),
     sitemap(),

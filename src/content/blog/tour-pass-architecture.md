@@ -1,9 +1,10 @@
 ---
 title: "我做了一个 C++ 旅游行程规划服务"
+category: project
 description: "记录 Tour Pass 的整体架构：POI 图建模、cpp-httplib API、服务运行时、Beam Search 行程规划、候选方案对比、LLM/模板解释和本地演示台。"
 pubDate: 2026-05-18
 updatedDate: 2026-06-18
-tags: ["C++", "算法", "项目复盘", "旅行规划"]
+tags: ["C++", "算法"]
 project: "Tour Pass"
 featured: true
 coverTone: "sunset"

@@ -1,8 +1,9 @@
 ---
 title: "Tour Pass 6 月更新：从 C++ 算法服务到 AI 行程平台"
+category: project
 description: "记录 Tour Pass 最新口径：C++17 + Python Agent 双引擎、LangGraph 多 Agent、21 城市 15000+ POI、React 行程编辑器、用户认证、Render 线上演示和 Agent 502 修复。"
 pubDate: 2026-06-18
-tags: ["C++", "Python", "AI Agent", "旅行规划"]
+tags: ["C++", "Python"]
 project: "Tour Pass"
 featured: true
 coverTone: "sunset"

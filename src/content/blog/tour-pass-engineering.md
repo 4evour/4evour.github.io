@@ -1,9 +1,10 @@
 ---
 title: "Tour Pass 的工程化和面试演示链路"
+category: project
 description: "记录 Tour Pass 怎么从算法代码变成稳定演示项目：Makefile/CMake、服务运行时、数据质量门禁、CI、API 冒烟、Web 演示台、LLM 兜底和性能基准。"
 pubDate: 2026-05-18
 updatedDate: 2026-06-18
-tags: ["C++", "工程化", "CI", "项目复盘"]
+tags: ["C++", "CI"]
 project: "Tour Pass"
 featured: true
 coverTone: "forest"

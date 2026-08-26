@@ -1,9 +1,10 @@
 ---
 title: "Tour Pass 的真实数据流水线和演示视频"
+category: project
 description: "记录 Tour Pass v2.8 如何补上真实 POI 采集、通勤边来源门禁、Docker 容器冒烟、部署口径、SQLite 复盘和站内演示视频。"
 pubDate: 2026-05-23
 updatedDate: 2026-06-18
-tags: ["C++", "工程化", "真实数据", "项目复盘"]
+tags: ["C++"]
 project: "Tour Pass"
 featured: true
 coverTone: "violet"

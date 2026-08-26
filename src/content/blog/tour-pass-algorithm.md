@@ -1,5 +1,6 @@
 ---
 title: "Tour Pass 里的行程规划算法"
+category: project
 description: "拆解 Tour Pass 的算法链路：Dijkstra/A*、时间槽 Beam Search、站点评分、严格时间窗复核、候选多样性和 Pareto 非支配排序。"
 pubDate: 2026-05-18
 updatedDate: 2026-05-23

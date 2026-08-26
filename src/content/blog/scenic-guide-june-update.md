@@ -1,8 +1,9 @@
 ---
 title: "景区导览系统 6 月更新：从演示链路到游客闭环"
+category: project
 description: "记录景区导览系统 6 月的最新口径：官方资料知识库、五种 RAG 检索模式、真实流式回答、Cookie/CSRF 鉴权、电子围栏、老年模式、二维码和游客反馈分析。"
 pubDate: 2026-06-18
-tags: ["Go", "Vue", "RAG", "项目复盘"]
+tags: ["Go", "Vue", "RAG"]
 project: "灵山胜境智能导览系统"
 featured: true
 coverTone: "forest"

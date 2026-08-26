@@ -1,5 +1,16 @@
 import { getCollection } from "astro:content";
 
+export const categoryDefinitions = [
+  { id: "project", label: "项目" },
+  { id: "tech", label: "技术" },
+  { id: "algorithm", label: "算法" },
+  { id: "misc", label: "杂谈" },
+] as const;
+
+export const categoryLabels = Object.fromEntries(
+  categoryDefinitions.map(({ id, label }) => [id, label]),
+) as Record<(typeof categoryDefinitions)[number]["id"], string>;
+
 export async function getPublishedPosts() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
 
@@ -14,6 +25,18 @@ export function formatDate(date: Date) {
     month: "long",
     day: "numeric",
   }).format(date);
+}
+
+export function getReadingMinutes(body = "") {
+  const plainText = body
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!?\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/<[^>]+>/g, " ");
+  const cjkCharacters = plainText.match(/[\u3400-\u9fff]/g)?.length ?? 0;
+  const latinWords = plainText.match(/[A-Za-z0-9][A-Za-z0-9_+-]*/g)?.length ?? 0;
+
+  return Math.max(1, Math.ceil(cjkCharacters / 400 + latinWords / 220));
 }
 
 export function getAllTags(

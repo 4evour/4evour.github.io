@@ -1,9 +1,10 @@
 ---
 title: "我做了一个景区智能导览系统"
+category: project
 description: "记录灵山胜境智能导览系统的整体搭建过程：Go/Gin、PostgreSQL/SQLite、GORM、Vue、RAG、Docker 复现、鉴权、安全边界和数字人入口。"
 pubDate: 2026-05-16
 updatedDate: 2026-06-18
-tags: ["Go", "Vue", "项目复盘", "智能导览"]
+tags: ["Go", "Vue", "智能导览"]
 project: "灵山胜境智能导览系统"
 featured: true
 coverTone: "forest"

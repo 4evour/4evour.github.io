@@ -13,6 +13,10 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
 {
   visibleHeadings.length > 0 && (
     <aside class="toc" aria-label="文章目录">
+      <div class="toc-heading">
+        <span>本页目录</span>
+        <small>{visibleHeadings.length} 节</small>
+      </div>
       <button
         class="toc-toggle"
         type="button"
@@ -20,7 +24,10 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
         aria-expanded="false"
         aria-controls="toc-nav"
       >
-        <span>目录</span>
+        <span class="toc-toggle-copy">
+          <strong>目录 · {visibleHeadings.length} 节</strong>
+          <small data-toc-current>{visibleHeadings[0]?.text}</small>
+        </span>
         <Icon name="lucide:chevron-down" aria-hidden="true" />
       </button>
       <nav class="toc-nav" id="toc-nav">
@@ -42,56 +49,80 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
     if (!toc || toc.dataset.tocReady === "true") return;
     toc.dataset.tocReady = "true";
 
-    // Mobile toggle
-    const toggle = toc.querySelector("[data-toc-toggle]");
-    if (toggle) {
-      toggle.addEventListener("click", () => {
-        const isOpen = toc.classList.toggle("is-open");
-        toggle.setAttribute("aria-expanded", String(isOpen));
+    requestAnimationFrame(() => {
+      // Mobile toggle
+      const toggle = toc.querySelector("[data-toc-toggle]");
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          const isOpen = toc.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(isOpen));
+        });
+      }
+
+      // Scroll-spy
+      const tocLinks = toc.querySelectorAll(".toc-nav a");
+      if (!tocLinks.length) return;
+
+      const controller = new AbortController();
+      let activeLink = null;
+      let frame = 0;
+      const currentLabel = toc.querySelector("[data-toc-current]");
+      const articleBody = document.querySelector(".article-body");
+      const trackedHeadings = [];
+
+      const setActive = (link) => {
+        if (activeLink) activeLink.classList.remove("is-active");
+        if (link) link.classList.add("is-active");
+        activeLink = link;
+        if (currentLabel && link) currentLabel.textContent = link.textContent?.trim() ?? "";
+      };
+
+      tocLinks.forEach((link) => {
+        const hash = link.getAttribute("href");
+        if (!hash) return;
+        const heading = document.getElementById(hash.slice(1));
+        if (heading) trackedHeadings.push({ heading, link });
+        link.addEventListener("click", () => {
+          toc.classList.remove("is-open");
+          toggle?.setAttribute("aria-expanded", "false");
+        }, { signal: controller.signal });
       });
-    }
 
-    // Scroll-spy
-    const tocLinks = toc.querySelectorAll(".toc-nav a");
-    if (!tocLinks.length) return;
-
-    const controller = new AbortController();
-    let activeLink = null;
-
-    const setActive = (link) => {
-      if (activeLink) activeLink.classList.remove("is-active");
-      if (link) link.classList.add("is-active");
-      activeLink = link;
-    };
-
-    const headingObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            const link = toc.querySelector(`a[href="#${CSS.escape(id)}"]`);
-            if (link) setActive(link);
-          }
+      const updateReadingState = () => {
+        frame = 0;
+        const marker = window.innerHeight * 0.24;
+        let current = trackedHeadings[0];
+        for (const candidate of trackedHeadings) {
+          if (candidate.heading.getBoundingClientRect().top <= marker) current = candidate;
+          else break;
         }
-      },
-      { rootMargin: "-20% 0px -70% 0px" },
-    );
+        if (current) setActive(current.link);
 
-    tocLinks.forEach((link) => {
-      const hash = link.getAttribute("href");
-      if (!hash) return;
-      const heading = document.getElementById(hash.slice(1));
-      if (heading) headingObserver.observe(heading);
+        if (articleBody) {
+          const rect = articleBody.getBoundingClientRect();
+          const scrollable = Math.max(1, rect.height - window.innerHeight * 0.55);
+          const progress = Math.min(1, Math.max(0, (marker - rect.top) / scrollable));
+          toc.style.setProperty("--toc-progress", `${progress * 100}%`);
+        }
+      };
+
+      const scheduleUpdate = () => {
+        if (!frame) frame = requestAnimationFrame(updateReadingState);
+      };
+
+      window.addEventListener("scroll", scheduleUpdate, { passive: true, signal: controller.signal });
+      window.addEventListener("resize", scheduleUpdate, { passive: true, signal: controller.signal });
+      updateReadingState();
+
+      document.addEventListener(
+        "astro:before-swap",
+        () => {
+          if (frame) cancelAnimationFrame(frame);
+          controller.abort();
+          delete toc.dataset.tocReady;
+        },
+        { once: true },
+      );
     });
-
-    document.addEventListener(
-      "astro:before-swap",
-      () => {
-        headingObserver.disconnect();
-        controller.abort();
-        delete toc.dataset.tocReady;
-      },
-      { once: true },
-    );
   })();
 </script>

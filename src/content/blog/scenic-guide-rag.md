@@ -1,9 +1,10 @@
 ---
 title: "我在景区导览项目里怎么做 RAG"
+category: project
 description: "记录灵山胜境智能导览系统里的 RAG 实现：DashScope Embedding、BM25/词面兜底、缓存、知识库上传、真实资料评估集和离线评估报告。"
 pubDate: 2026-05-16
 updatedDate: 2026-06-18
-tags: ["RAG", "Go", "AI", "知识库"]
+tags: ["RAG", "Go", "知识库"]
 project: "灵山胜境智能导览系统"
 featured: true
 coverTone: "ink"

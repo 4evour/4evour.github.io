@@ -10,6 +10,7 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
+    category: z.enum(["project", "tech", "algorithm", "misc"]),
     project: z.string().optional(),
     featured: z.boolean().default(false),
     coverTone: z.enum(["forest", "ink", "sunset", "violet"]).default("forest"),

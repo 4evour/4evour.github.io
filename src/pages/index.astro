@@ -36,10 +36,10 @@ const latestPosts = posts.slice(0, 3);
     </div>
     <div class="profile-about-copy profile-reveal">
       <p class="profile-statement">
-        我喜欢把模糊的问题拆开，做成真正能运行的东西；也愿意把过程讲清楚，让代码之外的判断同样被看见。
+        我在代码、算法与 AI 应用之间持续探索前沿内容，乐于把感兴趣的东西落地实现，喜欢记录自己的思考，方便复盘。
       </p>
       <div class="profile-details">
-        <p>目前关注 Go、C++、AI Agent 与检索增强生成，也在算法竞赛中训练解决问题的速度和准确性。</p>
+        <p>近期主要投入 AI Agent 与 RAG 项目实践，同时通过 Go、C++ 和算法竞赛持续打磨系统实现与问题求解能力。</p>
       </div>
     </div>
   </section>
@@ -49,26 +49,40 @@ const latestPosts = posts.slice(0, 3);
       <span>项目</span>
       <small>Selected work</small>
     </div>
-    <div class="profile-project-list">
-      <a class="profile-project profile-reveal" href="/projects/scenic-guide/">
-        <span class="profile-project-no">01</span>
-        <span class="profile-project-main">
-          <strong>灵山胜境智能导览系统</strong>
-          <small>面向真实景区场景的 AI 导览、RAG 知识库与 Live2D 数字人。</small>
-        </span>
-        <span class="profile-project-stack">Go · Vue · RAG</span>
-        <span class="profile-project-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="profile-project profile-reveal" href="/projects/tour-pass/">
-        <span class="profile-project-no">02</span>
-        <span class="profile-project-main">
-          <strong>Tour Pass</strong>
-          <small>从 C++ 路线规划算法出发，构建可解释的 AI 行程平台。</small>
-        </span>
-        <span class="profile-project-stack">C++ · Python · React</span>
-        <span class="profile-project-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="profile-all-link profile-reveal" href="/projects/">查看全部项目 <span aria-hidden="true">→</span></a>
+    <div class="profile-project-content">
+      <header class="profile-project-intro profile-reveal">
+        <p>从真实场景出发，覆盖数据、算法、AI 交互与工程落地；每个项目都留下可访问的运行证据和完整复盘。</p>
+        <span>Selected / 02</span>
+      </header>
+      <div class="profile-project-list">
+        <a class="profile-project profile-reveal" href="/projects/scenic-guide/">
+          <span class="profile-project-media">
+            <img src="/images/blog/scenic-guide/home.png" alt="灵山胜境智能导览系统游客端首页" loading="lazy" />
+          </span>
+          <span class="profile-project-main">
+            <span class="profile-project-type">景区 AI 导览</span>
+            <strong>灵山胜境智能导览系统</strong>
+            <small>把知识库、游客反馈、运营后台与 Live2D 数字人接入一条真实问答链路。</small>
+            <span class="profile-project-proof"><b>203</b> 真实问答 · Recall@8 <b>95.3%</b></span>
+            <span class="profile-project-stack">Go · Vue · RAG · Live2D</span>
+          </span>
+          <span class="profile-project-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="profile-project profile-reveal" href="/projects/tour-pass/">
+          <span class="profile-project-media">
+            <img src="/videos/tour-pass/tour-pass-web-demo-poster.jpg" alt="Tour Pass 行程规划平台演示界面" loading="lazy" />
+          </span>
+          <span class="profile-project-main">
+            <span class="profile-project-type">城市行程规划</span>
+            <strong>Tour Pass</strong>
+            <small>用 C++ 规划引擎与 Python Agent 生成可解释、可编辑的多候选城市行程。</small>
+            <span class="profile-project-proof"><b>21</b> 城市 · <b>15,000+</b> POI</span>
+            <span class="profile-project-stack">C++ · Python · LangGraph · React</span>
+          </span>
+          <span class="profile-project-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="profile-all-link profile-reveal" href="/projects/">查看完整项目档案 <span aria-hidden="true">→</span></a>
+      </div>
     </div>
   </section>
 

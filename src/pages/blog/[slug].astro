@@ -4,9 +4,16 @@ import BackToTop from "../../components/BackToTop.astro";
 import Giscus from "../../components/Giscus.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ReadingProgress from "../../components/ReadingProgress.astro";
+import RelatedPosts from "../../components/RelatedPosts.astro";
 import SeriesNav from "../../components/SeriesNav.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
-import { getPublishedPosts, getSeriesPosts, formatDate } from "../../utils/posts";
+import {
+  categoryLabels,
+  formatDate,
+  getPublishedPosts,
+  getReadingMinutes,
+  getSeriesPosts,
+} from "../../utils/posts";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -22,6 +29,11 @@ const { Content, headings } = await render(post);
 const ogImage = new URL(`/og/${post.id}.png`, Astro.site).href;
 
 const allPosts = await getPublishedPosts();
+const readingMinutes = getReadingMinutes(post.body);
+const categoryLabel = categoryLabels[post.data.category];
+const articleContext = post.data.project ?? post.data.tags[0];
+const showUpdatedDate = post.data.updatedDate &&
+  post.data.updatedDate.valueOf() > post.data.pubDate.valueOf();
 const seriesPosts = post.data.project
   ? getSeriesPosts(allPosts, post.data.project)
   : [];
@@ -30,6 +42,23 @@ const prev = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null;
 const next = currentIndex >= 0 && currentIndex < seriesPosts.length - 1
   ? seriesPosts[currentIndex + 1]
   : null;
+const relatedPosts = post.data.project
+  ? []
+  : allPosts
+      .filter((candidate) => candidate.id !== post.id)
+      .map((candidate) => ({
+        candidate,
+        sameCategory: candidate.data.category === post.data.category,
+        sharedTags: candidate.data.tags.filter((tag) => post.data.tags.includes(tag)).length,
+      }))
+      .filter(({ sameCategory, sharedTags }) => sameCategory || sharedTags > 0)
+      .sort((a, b) =>
+        Number(b.sameCategory) - Number(a.sameCategory) ||
+        b.sharedTags - a.sharedTags ||
+        b.candidate.data.pubDate.valueOf() - a.candidate.data.pubDate.valueOf()
+      )
+      .slice(0, 3)
+      .map(({ candidate }) => candidate);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description} ogImage={ogImage} ogType="article" pageClass="reading-page">
@@ -37,13 +66,20 @@ const next = currentIndex >= 0 && currentIndex < seriesPosts.length - 1
   <article class="article">
     <header class="article-header article-hero">
       <div>
-        <p class="eyebrow">{post.data.project ?? "Post"}</p>
+        <p class="eyebrow article-kicker">
+          <span>{categoryLabel}</span>
+          {articleContext && <><span aria-hidden="true">/</span><span>{articleContext}</span></>}
+        </p>
         <h1>{post.data.title}</h1>
-        <p>{post.data.description}</p>
-        <div class="post-meta">
-          <time datetime={post.data.pubDate.toISOString()}>
-            {formatDate(post.data.pubDate)}
-          </time>
+        <p class="article-description">{post.data.description}</p>
+        <div class="article-meta" aria-label="文章信息">
+          <span>发布于 <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time></span>
+          {showUpdatedDate && (
+            <span>更新于 <time datetime={post.data.updatedDate!.toISOString()}>{formatDate(post.data.updatedDate!)}</time></span>
+          )}
+          <span>约 {readingMinutes} 分钟阅读</span>
+        </div>
+        <div class="article-tags" aria-label="文章标签">
           {
             post.data.tags.map((tag) => (
               <a class="tag" href={`/tags/${encodeURIComponent(tag)}/`}>
@@ -67,6 +103,25 @@ const next = currentIndex >= 0 && currentIndex < seriesPosts.length - 1
   {seriesPosts.length > 1 && (prev || next) && (
     <SeriesNav prev={prev} next={next} project={post.data.project!} />
   )}
+  <RelatedPosts posts={relatedPosts} />
   <Giscus />
   <BackToTop />
 </BaseLayout>
+
+<script>
+  const setupHeadingAnchors = () => {
+    const headings = document.querySelectorAll<HTMLElement>(".article-body h2[id], .article-body h3[id]");
+    for (const heading of headings) {
+      if (heading.querySelector(".heading-anchor")) continue;
+      const anchor = document.createElement("a");
+      anchor.className = "heading-anchor";
+      anchor.href = `#${heading.id}`;
+      anchor.setAttribute("aria-label", `链接到：${heading.textContent?.trim() ?? "当前章节"}`);
+      anchor.textContent = "#";
+      heading.append(anchor);
+    }
+  };
+
+  setupHeadingAnchors();
+  document.addEventListener("astro:page-load", setupHeadingAnchors);
+</script>

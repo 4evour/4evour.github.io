@@ -1,0 +1,40 @@
+---
+import { Icon } from "astro-icon/components";
+import type { CollectionEntry } from "astro:content";
+import { categoryLabels, formatDate } from "../utils/posts";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <section class="related-posts container" aria-labelledby="related-posts-title">
+      <header class="related-posts-heading">
+        <div>
+          <p class="eyebrow">Continue reading</p>
+          <h2 id="related-posts-title">相关阅读</h2>
+        </div>
+        <span>{posts.length} 篇</span>
+      </header>
+      <ol>
+        {posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>
+              <span class="related-posts-meta">
+                {categoryLabels[post.data.category]}
+                <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+              </span>
+              <strong>{post.data.title}</strong>
+              <span class="related-posts-description">{post.data.description}</span>
+              <Icon name="lucide:arrow-up-right" aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}

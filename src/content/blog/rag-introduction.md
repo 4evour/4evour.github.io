@@ -1,8 +1,9 @@
 ---
 title: "RAG 入门 · 一篇搞懂"
+category: tech
 description: "从文档解析、分块、向量化，到查询改写、混合检索、重排和生成，完整梳理一条 RAG 问答流水线。"
 pubDate: 2026-08-25
-tags: ["RAG", "AI", "知识库", "检索"]
+tags: ["RAG", "知识库", "检索"]
 featured: false
 coverTone: "ink"
 coverLabel: "RAG 入门"
