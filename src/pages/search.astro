@@ -1,6 +1,17 @@
 ---
 import { Icon } from "astro-icon/components";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getPublishedPosts } from "../utils/posts";
+
+const posts = await getPublishedPosts();
+const fallbackSearchDocuments = posts.map((post) => ({
+  title: post.data.title,
+  description: post.data.description,
+  tags: post.data.tags,
+  project: post.data.project ?? "",
+  url: `/blog/${post.id}/`,
+}));
+const fallbackSearchData = JSON.stringify(fallbackSearchDocuments).replace(/</g, "\\u003c");
 ---
 
 <BaseLayout title="搜索" description="搜索 4evour blog 的文章、项目和标签。">
@@ -21,12 +32,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         data-search-input
       />
     </div>
-    <p class="search-status" data-search-status>搜索索引会在生产构建后可用。</p>
+    <p class="search-status" data-search-status>输入关键词开始搜索。</p>
     <ol class="search-results" data-search-results></ol>
   </section>
 </BaseLayout>
 
+<script type="application/json" id="search-fallback-data" is:inline set:html={fallbackSearchData}></script>
+
 <script>
+  type SearchResult = {
+    title: string;
+    excerpt: string;
+    url: string;
+  };
+
   type PagefindSearchFragment = {
     excerpt?: string;
     meta?: {
@@ -69,37 +88,62 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     if (results) results.innerHTML = "";
   };
 
-  const renderResults = async (
+  const stripMarkup = (value: string) => {
+    const documentFragment = new DOMParser().parseFromString(value, "text/html");
+    return documentFragment.body.textContent ?? "";
+  };
+
+  const getFallbackDocuments = () => {
+    const data = document.querySelector<HTMLScriptElement>("#search-fallback-data");
+
+    if (!data?.textContent) return [];
+
+    try {
+      return JSON.parse(data.textContent) as Array<{
+        title: string;
+        description: string;
+        tags: string[];
+        project: string;
+        url: string;
+      }>;
+    } catch {
+      return [];
+    }
+  };
+
+  const searchFallback = (query: string): SearchResult[] => {
+    const normalizedQuery = query.toLocaleLowerCase();
+
+    return getFallbackDocuments()
+      .filter((post) =>
+        [post.title, post.description, ...post.tags, post.project]
+          .join(" ")
+          .toLocaleLowerCase()
+          .includes(normalizedQuery),
+      )
+      .slice(0, 12)
+      .map((post) => ({
+        title: post.title,
+        excerpt: post.description,
+        url: post.url,
+      }));
+  };
+
+  const renderResultList = (
     query: string,
+    searchResults: SearchResult[],
+    total: number,
     status: HTMLElement | null,
     results: HTMLOListElement | null,
   ) => {
-    const pagefind = await loadPagefind();
-
-    if (!pagefind) {
-      setStatus(status, "当前是开发模式或搜索索引尚未生成。请运行 npm run build 后预览。");
-      clearResults(results);
-      return;
-    }
-
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery) {
-      setStatus(status, "输入关键词开始搜索。");
-      clearResults(results);
-      return;
-    }
-
-    const search = await pagefind.search(trimmedQuery);
-    const searchResults = await Promise.all(search.results.slice(0, 12).map((result) => result.data()));
-
     clearResults(results);
 
     if (searchResults.length === 0) {
-      setStatus(status, `没有找到“${trimmedQuery}”。`);
+      setStatus(status, `没有找到“${query}”。`);
       return;
     }
 
-    setStatus(status, `找到 ${search.results.length} 条结果。`);
+    setStatus(status, `找到 ${total} 条结果。`);
 
     for (const result of searchResults) {
       const item = document.createElement("li");
@@ -107,14 +151,49 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       const title = document.createElement("strong");
       const excerpt = document.createElement("p");
 
-      link.href = result.url ?? result.raw_url ?? "/";
-      title.textContent = result.meta?.title ?? "未命名页面";
-      excerpt.innerHTML = result.excerpt ?? "";
+      link.href = result.url;
+      title.textContent = result.title;
+      excerpt.textContent = result.excerpt;
 
       link.append(title, excerpt);
       item.append(link);
       results?.append(item);
     }
+  };
+
+  const renderResults = async (
+    query: string,
+    status: HTMLElement | null,
+    results: HTMLOListElement | null,
+  ) => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setStatus(status, "输入关键词开始搜索。");
+      clearResults(results);
+      return;
+    }
+
+    const pagefind = await loadPagefind();
+
+    if (pagefind) {
+      try {
+        const search = await pagefind.search(trimmedQuery);
+        const pagefindResults = await Promise.all(search.results.slice(0, 12).map((result) => result.data()));
+        const searchResults = pagefindResults.map((result) => ({
+          title: result.meta?.title ?? "未命名页面",
+          excerpt: stripMarkup(result.excerpt ?? ""),
+          url: result.url ?? result.raw_url ?? "/",
+        }));
+
+        renderResultList(trimmedQuery, searchResults, search.results.length, status, results);
+        return;
+      } catch {
+        // Fall back to the metadata search while the generated index is unavailable.
+      }
+    }
+
+    const fallbackResults = searchFallback(trimmedQuery);
+    renderResultList(trimmedQuery, fallbackResults, fallbackResults.length, status, results);
   };
 
   const setupSearch = () => {

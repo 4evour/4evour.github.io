@@ -4,15 +4,47 @@ import PostList from "../../components/PostList.astro";
 import { getPublishedPosts } from "../../utils/posts";
 
 const posts = await getPublishedPosts();
+const postGroups = posts.reduce(
+  (groups, post) => {
+    const year = post.data.pubDate.getFullYear();
+    const group = groups.find((item) => item.year === year);
+
+    if (group) {
+      group.posts.push(post);
+    } else {
+      groups.push({ year, posts: [post] });
+    }
+
+    return groups;
+  },
+  [] as { year: number; posts: typeof posts }[],
+);
 ---
 
 <BaseLayout title="文章" description="4evour 的博客文章列表。">
   <section class="container page-title">
-    <p class="eyebrow">Blog</p>
+    <p class="eyebrow">文章库</p>
     <h1>文章</h1>
     <p>按时间整理的技术记录、项目复盘和零散想法。</p>
   </section>
   <section class="container section">
-    <PostList posts={posts} variant="cards" />
+    <div class="blog-toolbar">
+      <p>共 {posts.length} 篇文章，按最近发布排序</p>
+      <div class="blog-toolbar-actions">
+        <a class="button" href="/search/">搜索文章</a>
+      </div>
+    </div>
+    <div class="blog-archive">
+      {postGroups.map(({ year, posts: yearPosts }) => (
+        <section class="blog-year" aria-labelledby={`blog-year-${year}`}>
+          <header class="blog-year-heading">
+            <p class="eyebrow">年份归档</p>
+            <h2 id={`blog-year-${year}`}>{year}</h2>
+            <p>{yearPosts.length} 篇文章</p>
+          </header>
+          <PostList posts={yearPosts} />
+        </section>
+      ))}
+    </div>
   </section>
 </BaseLayout>

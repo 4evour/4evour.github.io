@@ -2,12 +2,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostList from "../components/PostList.astro";
 import DailyPoem from "../components/DailyPoem.astro";
-import TypedTerminal from "../components/TypedTerminal.astro";
-import WritingCalendar from "../components/WritingCalendar.astro";
 import { getPublishedPosts } from "../utils/posts";
 
 const posts = await getPublishedPosts();
-const featuredPosts = posts.filter((post) => post.data.featured).slice(0, 3);
 const latestPosts = posts.slice(0, 3);
 ---
 
@@ -15,84 +12,34 @@ const latestPosts = posts.slice(0, 3);
   <section class="hero hero-redesign">
     <div class="container hero-inner">
       <div class="hero-copy-block">
-      <h1>4evour</h1>
-      <div class="hero-actions">
-        <a class="button primary" href="/blog/">阅读文章</a>
-          <a class="button" href="/projects/">查看项目</a>
-      </div>
+        <h1>4evour</h1>
+        <div class="hero-actions">
+          <a class="button primary" href="/blog/">阅读文章</a>
+          <a class="button" href="/about/">了解我</a>
+        </div>
         <dl class="hero-stats" aria-label="站点概览">
           <div>
             <dt>{posts.length}</dt>
             <dd>篇文章</dd>
           </div>
-          <div>
-            <dt>2</dt>
-            <dd>个项目归档</dd>
-          </div>
-          <div>
-            <dt>Astro</dt>
-            <dd>静态构建</dd>
-          </div>
         </dl>
-    </div>
+      </div>
 
-      <aside class="hero-visual" aria-label="站点技术视觉">
-        <TypedTerminal />
-        <div class="visual-layers">
-          <span>Gin</span>
-          <span>RAG</span>
-          <span>Vue</span>
-          <span>Live2D</span>
-        </div>
+      <aside class="hero-visual" aria-label="个人内容视觉">
         <DailyPoem />
       </aside>
     </div>
   </section>
 
-  <section class="container section project-spotlight">
-    <div class="spotlight-copy">
-      <p class="eyebrow">Featured project</p>
-      <h2>灵山胜境智能导览系统</h2>
-      <p>
-        一个把 Go/Gin、Vue、RAG 知识库、OpenAI 兼容接口、电子围栏、游客反馈闭环和 Live2D 数字人串在一起的项目。
-        我把它拆成架构、检索、交互和 6 月闭环更新几条线来复盘。
-      </p>
-      <div class="hero-actions">
-        <a class="button primary" href="/projects/scenic-guide/">进入项目归档</a>
-        <a class="button" href="/blog/scenic-guide-architecture/">读架构复盘</a>
-      </div>
-    </div>
-    <div class="spotlight-map" aria-label="项目能力模块">
-      <div>
-        <strong>Go API</strong>
-        <span>鉴权、限流、优雅关闭</span>
-      </div>
-      <div>
-        <strong>RAG</strong>
-        <span>五种检索模式 + 真实评估</span>
-      </div>
-      <div>
-        <strong>Live2D</strong>
-        <span>SSE、WebSocket、表情同步</span>
-      </div>
-      <div>
-        <strong>Dashboard</strong>
-        <span>反馈分析与运营看板</span>
-      </div>
-    </div>
-  </section>
-
-  <WritingCalendar posts={posts} />
-
   <section class="container section">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Featured writing</p>
-        <h2>精选文章</h2>
-        <p>先把能展示项目深度的几篇放在最前面。</p>
+        <p class="eyebrow">最近记录</p>
+        <h2>最近文章</h2>
+        <p>从最近写下的内容开始认识我。</p>
       </div>
       <a class="button" href="/blog/">全部文章</a>
     </div>
-    <PostList posts={featuredPosts.length > 0 ? featuredPosts : latestPosts} variant="cards" />
+    <PostList posts={latestPosts} />
   </section>
 </BaseLayout>
