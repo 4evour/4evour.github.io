@@ -9,6 +9,7 @@ const {
   description = "欢迎来到 4evour 的个人博客。",
   ogImage,
   ogType = "website",
+  pageClass = "",
 } = Astro.props;
 
 const pageTitle = title === "4evour blog" ? title : `${title} | 4evour blog`;
@@ -52,7 +53,7 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
     </script>
     <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="50552309-1c05-4680-92fb-17c6b7687cb5"></script>
   </head>
-  <body>
+  <body class={pageClass}>
     <div class="custom-cursor" aria-hidden="true" data-custom-cursor>
       <span class="cursor-core" data-cursor-core></span>
       <span class="cursor-trails" data-cursor-trails></span>
@@ -88,7 +89,7 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
             window.__revealObserver.disconnect();
           }
 
-          const elements = document.querySelectorAll(".section, .post-item, .project-card, .article-body > *");
+          const elements = document.querySelectorAll(".post-item, .project-card, .profile-reveal");
 
           if (reduceMotion || !("IntersectionObserver" in window)) {
             elements.forEach((element) => element.classList.add("is-visible"));
@@ -122,6 +123,8 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
 
           const canUseCustomCursor =
             !reduceMotion &&
+            !document.body.classList.contains("reading-page") &&
+            !document.body.classList.contains("profile-page") &&
             window.matchMedia("(pointer: fine)").matches &&
             !window.matchMedia("(hover: none)").matches;
 

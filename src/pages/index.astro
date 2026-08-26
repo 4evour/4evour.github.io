@@ -1,45 +1,130 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostList from "../components/PostList.astro";
-import DailyPoem from "../components/DailyPoem.astro";
 import { getPublishedPosts } from "../utils/posts";
 
 const posts = await getPublishedPosts();
 const latestPosts = posts.slice(0, 3);
 ---
 
-<BaseLayout>
-  <section class="hero hero-redesign">
-    <div class="container hero-inner">
-      <div class="hero-copy-block">
-        <h1>4evour</h1>
-        <div class="hero-actions">
-          <a class="button primary" href="/blog/">阅读文章</a>
-          <a class="button" href="/about/">了解我</a>
-        </div>
-        <dl class="hero-stats" aria-label="站点概览">
-          <div>
-            <dt>{posts.length}</dt>
-            <dd>篇文章</dd>
-          </div>
-        </dl>
+<BaseLayout
+  pageClass="profile-page"
+  title="4evour"
+  description="4evour 的个人主页：开发、算法竞赛、项目与写作。"
+  ogImage="/images/competition/awards.jpg"
+>
+  <section class="profile-hero" id="profile">
+    <div class="profile-hero-copy">
+      <h1><span>4evour</span> Profile</h1>
+      <p class="profile-intro">
+        你好，我是 4evour<br />
+        现在主要在学习软件工程的开发，做 AI 应用相关的项目<br />
+        这里记录了我的个人信息与项目经历，希望能帮助您更好地了解我
+      </p>
+      <div class="profile-actions">
+        <a class="profile-button profile-button-primary" href="/blog/">阅读文章</a>
+        <a class="profile-button" href="#about">了解我</a>
       </div>
+    </div>
 
-      <aside class="hero-visual" aria-label="个人内容视觉">
-        <DailyPoem />
-      </aside>
+  </section>
+
+  <section class="profile-section profile-about" id="about">
+    <div class="profile-section-label profile-reveal">
+      <span>关于</span>
+      <small>About</small>
+    </div>
+    <div class="profile-about-copy profile-reveal">
+      <p class="profile-statement">
+        我喜欢把模糊的问题拆开，做成真正能运行的东西；也愿意把过程讲清楚，让代码之外的判断同样被看见。
+      </p>
+      <div class="profile-details">
+        <p>目前关注 Go、C++、AI Agent 与检索增强生成，也在算法竞赛中训练解决问题的速度和准确性。</p>
+      </div>
     </div>
   </section>
 
-  <section class="container section">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">最近记录</p>
-        <h2>最近文章</h2>
-        <p>从最近写下的内容开始认识我。</p>
-      </div>
-      <a class="button" href="/blog/">全部文章</a>
+  <section class="profile-section profile-projects" id="projects">
+    <div class="profile-section-label profile-reveal">
+      <span>项目</span>
+      <small>Selected work</small>
     </div>
-    <PostList posts={latestPosts} />
+    <div class="profile-project-list">
+      <a class="profile-project profile-reveal" href="/projects/scenic-guide/">
+        <span class="profile-project-no">01</span>
+        <span class="profile-project-main">
+          <strong>灵山胜境智能导览系统</strong>
+          <small>面向真实景区场景的 AI 导览、RAG 知识库与 Live2D 数字人。</small>
+        </span>
+        <span class="profile-project-stack">Go · Vue · RAG</span>
+        <span class="profile-project-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="profile-project profile-reveal" href="/projects/tour-pass/">
+        <span class="profile-project-no">02</span>
+        <span class="profile-project-main">
+          <strong>Tour Pass</strong>
+          <small>从 C++ 路线规划算法出发，构建可解释的 AI 行程平台。</small>
+        </span>
+        <span class="profile-project-stack">C++ · Python · React</span>
+        <span class="profile-project-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="profile-all-link profile-reveal" href="/projects/">查看全部项目 <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="profile-competition" id="competition">
+    <div class="profile-competition-inner">
+      <div class="profile-competition-copy profile-reveal">
+        <div class="profile-section-label profile-section-label-light">
+          <span>竞赛</span>
+          <small>Competition</small>
+        </div>
+        <h2>在有限时间里，<br />找到可靠的答案。</h2>
+        <p>竞赛让我习惯在压力下协作、验证和取舍。奖项是结果，更重要的是一遍遍推翻思路后留下的判断力。</p>
+      </div>
+      <ol class="profile-award-list profile-reveal">
+        <li><span>CCPC邀请赛郑州站/南昌站</span><strong>铜牌</strong></li>
+        <li><span>中国高校计算机大赛 团体程序设计天梯赛</span><strong>团队全国三等奖</strong></li>
+        <li><span>蓝桥杯全国软件和信息技术专业人才大赛</span><strong>全国三等奖</strong></li>
+      </ol>
+      <figure class="profile-awards-preview profile-reveal">
+        <div class="profile-image-frame">
+          <img
+            src="/images/competition/awards.jpg"
+            alt="算法竞赛奖牌、证书与获奖纪念牌"
+            width="1156"
+            height="868"
+            loading="lazy"
+          />
+        </div>
+        <figcaption>
+          <span>2025 / Competition archive</span>
+          <span>算法竞赛获奖记录</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="profile-section profile-writing" id="writing">
+    <div class="profile-writing-head profile-reveal">
+      <div class="profile-section-label">
+        <span>写作</span>
+        <small>Recent notes</small>
+      </div>
+      <div>
+        <h2>把做过的事，写得能被读懂。</h2>
+        <p>技术实践、项目复盘与算法竞赛，按主题持续整理。</p>
+      </div>
+      <a class="profile-inline-link" href="/blog/">全部文章 <span aria-hidden="true">→</span></a>
+    </div>
+    <PostList posts={latestPosts} variant="list" />
+  </section>
+
+  <section class="profile-closing" id="contact">
+    <p class="profile-reveal">Still learning. Still building.</p>
+    <h2 class="profile-reveal">下一段经历，<br />正在发生。</h2>
+    <div class="profile-closing-links profile-reveal">
+      <a href="https://github.com/4evour" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
   </section>
 </BaseLayout>

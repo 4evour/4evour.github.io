@@ -32,7 +32,7 @@ const next = currentIndex >= 0 && currentIndex < seriesPosts.length - 1
   : null;
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} ogImage={ogImage} ogType="article">
+<BaseLayout title={post.data.title} description={post.data.description} ogImage={ogImage} ogType="article" pageClass="reading-page">
   <ReadingProgress />
   <article class="article">
     <header class="article-header article-hero">
