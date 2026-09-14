@@ -16,49 +16,70 @@ const tourPassPosts = getPostsByProject(posts, tourPassName);
       <h1>项目</h1>
       <p>把做过的项目整理成可以继续阅读的入口，而不只是放几个仓库链接。</p>
     </div>
-      <div class="project-index-mark" aria-hidden="true">02</div>
   </section>
-  <section class="container section">
+  <section class="container section project-index-list">
     <a class="project-card" href="/projects/scenic-guide/">
-      <div class="project-card-visual" aria-hidden="true">
-        <span>Guide</span>
+      <div class="project-card-media">
+        <img
+          src="/images/blog/scenic-guide/home.png"
+          alt="灵山胜境智能导览系统游客端首页"
+          width="1440"
+          height="1000"
+        />
+        <span aria-hidden="true">01 / AI 导览</span>
       </div>
-      <div>
-        <p class="eyebrow">Case study</p>
-        <h2>{scenicGuideName}</h2>
-        <p>
-          一个 Go + Vue + RAG + Live2D 的景区智能导览系统，包含官方资料知识库、
-          管理后台、数据看板、电子围栏、二维码和游客反馈闭环。
-        </p>
+      <div class="project-card-copy">
+        <div>
+          <div class="project-card-topline">
+            <p class="eyebrow">Case study / 01</p>
+            <span>{scenicGuidePosts.length} 篇文章</span>
+          </div>
+          <h2>{scenicGuideName}</h2>
+          <p>
+            一个 Go + Vue + RAG + Live2D 的景区智能导览系统，包含官方资料知识库、
+            管理后台、数据看板、电子围栏、二维码和游客反馈闭环。
+          </p>
+        </div>
         <div class="tag-list">
           <span class="tag">Go</span>
           <span class="tag">Vue</span>
           <span class="tag">RAG</span>
           <span class="tag">反馈闭环</span>
         </div>
+        <span class="project-card-cta">查看项目档案 <b aria-hidden="true">↗</b></span>
       </div>
-      <span class="post-meta">{scenicGuidePosts.length} 篇文章</span>
     </a>
 
     <a class="project-card project-card-tour" href="/projects/tour-pass/">
-      <div class="project-card-visual" aria-hidden="true">
-        <span>Tour</span>
+      <div class="project-card-media">
+        <img
+          src="/videos/tour-pass/tour-pass-web-demo-poster.jpg"
+          alt="Tour Pass 多候选城市行程规划界面"
+          width="1280"
+          height="720"
+        />
+        <span aria-hidden="true">02 / 行程规划</span>
       </div>
-      <div>
-        <p class="eyebrow">Case study</p>
-        <h2>{tourPassName}</h2>
-        <p>
-          一个 C++17 + Python Agent 城市自由行规划项目，覆盖 POI 图、Beam Search、
-          LangGraph 多 Agent、21 城市数据、React 行程编辑器和线上演示。
-        </p>
+      <div class="project-card-copy">
+        <div>
+          <div class="project-card-topline">
+            <p class="eyebrow">Case study / 02</p>
+            <span>{tourPassPosts.length} 篇文章</span>
+          </div>
+          <h2>{tourPassName}</h2>
+          <p>
+            一个 C++17 + Python Agent 城市自由行规划项目，覆盖 POI 图、Beam Search、
+            LangGraph 多 Agent、21 城市数据、React 行程编辑器和线上演示。
+          </p>
+        </div>
         <div class="tag-list">
           <span class="tag">C++</span>
           <span class="tag">Python</span>
           <span class="tag">LangGraph</span>
           <span class="tag">React</span>
         </div>
+        <span class="project-card-cta">查看项目档案 <b aria-hidden="true">↗</b></span>
       </div>
-      <span class="post-meta">{tourPassPosts.length} 篇文章</span>
     </a>
   </section>
 </BaseLayout>

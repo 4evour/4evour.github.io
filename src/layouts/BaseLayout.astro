@@ -41,8 +41,7 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
     <script is:inline>
       const getPreferredTheme = () => {
         const storedTheme = localStorage.getItem("theme");
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        return storedTheme ?? (prefersDark ? "dark" : "light");
+        return storedTheme ?? "dark";
       };
 
       document.documentElement.dataset.theme = getPreferredTheme();
@@ -204,8 +203,155 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
           };
         };
 
+        const initProfileScrollMotion = () => {
+          if (window.__profileScrollCleanup) {
+            window.__profileScrollCleanup();
+          }
+
+          if (!document.body.classList.contains("profile-page")) return;
+
+          const progress = document.querySelector("[data-profile-progress]");
+          if (!progress) return;
+
+          let frame = 0;
+
+          const update = () => {
+            frame = 0;
+            const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const ratio = scrollableHeight > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollableHeight)) : 0;
+            document.body.style.setProperty("--profile-scroll-progress", ratio.toFixed(4));
+            document.body.style.setProperty("--profile-scroll-progress-pct", `${(ratio * 100).toFixed(2)}%`);
+            document.body.style.setProperty("--profile-scroll-y", `${Math.round(window.scrollY * -0.018)}px`);
+            document.body.style.setProperty("--profile-hero-parallax", `${Math.round(window.scrollY * -0.035)}px`);
+            document.body.classList.toggle("is-profile-scrolled", window.scrollY > 28);
+          };
+
+          const onScroll = () => {
+            if (!frame) frame = window.requestAnimationFrame(update);
+          };
+
+          update();
+          if (!reduceMotion) window.addEventListener("scroll", onScroll, { passive: true });
+          window.addEventListener("resize", update, { passive: true });
+
+          window.__profileScrollCleanup = () => {
+            if (frame) window.cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", update);
+            document.body.classList.remove("is-profile-scrolled");
+            document.body.style.removeProperty("--profile-scroll-progress");
+            document.body.style.removeProperty("--profile-scroll-progress-pct");
+            document.body.style.removeProperty("--profile-scroll-y");
+            document.body.style.removeProperty("--profile-hero-parallax");
+          };
+        };
+
+        const initProfileHeroPointer = () => {
+          if (window.__profileHeroPointerCleanup) {
+            window.__profileHeroPointerCleanup();
+          }
+
+          if (
+            reduceMotion ||
+            !document.body.classList.contains("profile-page") ||
+            !window.matchMedia("(pointer: fine) and (hover: hover)").matches
+          ) {
+            return;
+          }
+
+          const hero = document.querySelector(".profile-hero");
+          if (!hero) return;
+
+          let frame = 0;
+          let pointerX = 0;
+          let pointerY = 0;
+
+          const update = () => {
+            frame = 0;
+            const rect = hero.getBoundingClientRect();
+            const offsetX = ((pointerX - (rect.left + rect.width / 2)) / rect.width) * -18;
+            const offsetY = ((pointerY - (rect.top + rect.height / 2)) / rect.height) * -12;
+            hero.style.setProperty("--profile-hero-pointer-x", `${offsetX.toFixed(2)}px`);
+            hero.style.setProperty("--profile-hero-pointer-y", `${offsetY.toFixed(2)}px`);
+          };
+
+          const onPointerMove = (event) => {
+            pointerX = event.clientX;
+            pointerY = event.clientY;
+            if (!frame) frame = window.requestAnimationFrame(update);
+            hero.classList.add("is-pointer-active");
+          };
+
+          const onPointerLeave = () => {
+            hero.classList.remove("is-pointer-active");
+            hero.style.removeProperty("--profile-hero-pointer-x");
+            hero.style.removeProperty("--profile-hero-pointer-y");
+          };
+
+          hero.addEventListener("pointermove", onPointerMove, { passive: true });
+          hero.addEventListener("pointerleave", onPointerLeave, { passive: true });
+
+          window.__profileHeroPointerCleanup = () => {
+            if (frame) window.cancelAnimationFrame(frame);
+            hero.removeEventListener("pointermove", onPointerMove);
+            hero.removeEventListener("pointerleave", onPointerLeave);
+            hero.classList.remove("is-pointer-active");
+            hero.style.removeProperty("--profile-hero-pointer-x");
+            hero.style.removeProperty("--profile-hero-pointer-y");
+            window.__profileHeroPointerCleanup = null;
+          };
+        };
+
+        const initProfileProjectPointer = () => {
+          if (window.__profileProjectPointerCleanup) {
+            window.__profileProjectPointerCleanup();
+          }
+
+          if (
+            reduceMotion ||
+            !document.body.classList.contains("profile-page") ||
+            !window.matchMedia("(pointer: fine) and (hover: hover)").matches
+          ) {
+            return;
+          }
+
+          const projects = [...document.querySelectorAll(".profile-project")];
+          if (!projects.length) return;
+
+          const cleanups = projects.map((project) => {
+            const onPointerMove = (event) => {
+              const rect = project.getBoundingClientRect();
+              const x = ((event.clientX - rect.left) / rect.width) * 100;
+              const y = ((event.clientY - rect.top) / rect.height) * 100;
+              project.style.setProperty("--project-pointer-x", `${x.toFixed(2)}%`);
+              project.style.setProperty("--project-pointer-y", `${y.toFixed(2)}%`);
+            };
+            const onPointerEnter = () => project.classList.add("is-pointer-active");
+            const onPointerLeave = () => project.classList.remove("is-pointer-active");
+
+            project.addEventListener("pointermove", onPointerMove, { passive: true });
+            project.addEventListener("pointerenter", onPointerEnter, { passive: true });
+            project.addEventListener("pointerleave", onPointerLeave, { passive: true });
+
+            return () => {
+              project.removeEventListener("pointermove", onPointerMove);
+              project.removeEventListener("pointerenter", onPointerEnter);
+              project.removeEventListener("pointerleave", onPointerLeave);
+              project.classList.remove("is-pointer-active");
+            };
+          });
+
+          window.__profileProjectPointerCleanup = () => {
+            cleanups.forEach((cleanup) => cleanup());
+            window.__profileProjectPointerCleanup = null;
+          };
+        };
+
         initThemeToggle();
         initRevealOnScroll();
+        initProfileScrollMotion();
+        initProfileHeroPointer();
+        initProfileProjectPointer();
         initCustomCursor();
 
         // Track pageview on ClientRouter navigation
