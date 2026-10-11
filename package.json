@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build && pagefind --site dist",
-    "preview": "astro preview"
+    "build": "npm run check:articles && astro check && astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "check:articles": "node scripts/check-article-content.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

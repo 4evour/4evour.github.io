@@ -8,9 +8,6 @@ featured: false
 coverTone: forest
 draft: false
 ---
-![TencentDB Agent Memory 发布封面](/images/blog/tencentdb-agent-memory/cover.webp)
-
-# TencentDB Agent Memory：当 Agent 记忆不再只是一个向量库
 
 如果只看名字，TencentDB Agent Memory 很容易被理解成又一个“给 Agent 加长期记忆”的项目：保存历史对话，提取用户偏好，再通过向量检索把相关内容放回上下文。
 
@@ -80,7 +77,6 @@ README 将 Chat Memory 表述为 L0 Conversation → L1 Atom → L2 Scenario →
 | L2 Scenario | 场景知识 | 恢复一个项目或工作场景 |
 | L3 Persona / Core | 稳定认知 | 快速进入用户和团队语境 |
 
-![Memory Hub 中的 L0-L3 真实页面](/images/blog/tencentdb-agent-memory/memory-levels.webp)
 
 *图 3｜官方页面同时保留 L0-L3。上层认知没有替代底层证据。*
 
@@ -131,7 +127,6 @@ L2/L3 主动给 Agent 一个低频变化的背景；L1 只召回与当前问题�
 
 `skill-permission.ts` 进一步要求写入者匹配 Team 与 Owner Agent，并使用 `expected_version` 实现乐观锁，避免协作更新时悄悄覆盖别人的修改。
 
-![Memory Hub 中的 Skill 资产页面](/images/blog/tencentdb-agent-memory/four-assets.webp)
 
 *图 4｜官方 Skill 页面展示名称、版本、Owner 与详情。代码中还存在资源目录和历史版本逻辑。*
 

@@ -8,9 +8,8 @@ featured: false
 coverTone: ink
 draft: false
 ---
-# 计算机网络八股 · TCP/IP 与 TCP 篇
 
-> 面试前快速复习版。每节按“问题 → 标准回答 → 讲解 → 追问”展开，不按 PDF 页数切题；导入 Notion 后可按实际版式分页。
+> 面试前快速复习版。每节按“问题 → 标准回答 → 讲解 → 追问”展开。
 
 ---
 

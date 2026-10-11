@@ -26,6 +26,7 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+const hasTableOfContents = headings.some((heading) => heading.depth >= 2 && heading.depth <= 3);
 const ogImage = new URL(`/og/${post.id}.png`, Astro.site).href;
 
 const allPosts = await getPublishedPosts();
@@ -93,7 +94,7 @@ const relatedPosts = post.data.project
         <span>{post.data.coverLabel ?? post.data.tags[0] ?? "Note"}</span>
       </div>
     </header>
-    <div class="article-layout">
+    <div class:list={["article-layout", { "article-layout--without-toc": !hasTableOfContents }]}>
       <TableOfContents headings={headings} />
       <div class="article-body">
         <Content />
