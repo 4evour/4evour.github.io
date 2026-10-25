@@ -519,9 +519,10 @@ a.tag:hover {
 }
 
 .profile-hero h1 {
-  max-width: 12em;
+  max-width: 18em;
   margin-top: 1.1rem;
-  font-size: clamp(2rem, 4.4vw, 3.45rem);
+  font-size: clamp(1.85rem, 4vw, 3.15rem);
+  text-wrap: balance;
 }
 
 .profile-intro {
@@ -1838,13 +1839,25 @@ figcaption {
 @media (max-width: 720px) {
   .nav-masthead {
     display: grid;
+    grid-template-areas:
+      "brand tools"
+      "nav nav";
     grid-template-columns: minmax(0, 1fr) auto;
     min-height: 0;
     padding: 0.7rem 0 0.35rem;
   }
 
+  .brand {
+    grid-area: brand;
+  }
+
+  .nav-utility {
+    grid-area: tools;
+    margin-left: 0;
+  }
+
   .nav-primary {
-    grid-column: 1 / -1;
+    grid-area: nav;
     margin-left: 0;
     border-top: var(--rule-hair) solid var(--color-rule);
   }
@@ -1861,11 +1874,19 @@ figcaption {
   }
 
   .profile-hero {
-    min-height: calc(100svh - 7.25rem);
+    min-height: 0;
+  }
+
+  .profile-hero-copy {
+    padding-bottom: 1.25rem;
+  }
+
+  .profile-actions {
+    margin-top: 1.75rem;
   }
 
   .profile-nameplate {
-    font-size: clamp(3.6rem, 20vw, 5rem);
+    font-size: clamp(3.4rem, 18vw, 4.6rem);
   }
 
   .blog-index-title-row,
