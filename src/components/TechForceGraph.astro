@@ -31,7 +31,6 @@ const links = [
 <section class="container section tech-graph-section">
   <div class="section-head">
     <div>
-      <p class="eyebrow">Tech graph</p>
       <h2>技术星图</h2>
       <p>把项目里的后端、AI、前端交互关系放在一张可探索的图里。</p>
     </div>
@@ -85,10 +84,10 @@ const links = [
       const width = 760;
       const height = 420;
       const palette: Record<string, string> = {
-        core: "var(--accent-warm)",
-        backend: "var(--accent)",
-        ai: "var(--accent-strong)",
-        ui: "var(--muted)",
+        core: "var(--color-ink)",
+        backend: "var(--color-ink-2)",
+        ai: "var(--color-accent)",
+        ui: "var(--color-rule-2)",
       };
 
       graph.dataset.graphReady = "true";

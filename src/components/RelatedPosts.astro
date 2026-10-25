@@ -1,5 +1,4 @@
 ---
-import { Icon } from "astro-icon/components";
 import type { CollectionEntry } from "astro:content";
 import { categoryLabels, formatDate } from "../utils/posts";
 
@@ -15,7 +14,6 @@ const { posts } = Astro.props;
     <section class="related-posts container" aria-labelledby="related-posts-title">
       <header class="related-posts-heading">
         <div>
-          <p class="eyebrow">Continue reading</p>
           <h2 id="related-posts-title">相关阅读</h2>
         </div>
         <span>{posts.length} 篇</span>
@@ -30,7 +28,6 @@ const { posts } = Astro.props;
               </span>
               <strong>{post.data.title}</strong>
               <span class="related-posts-description">{post.data.description}</span>
-              <Icon name="lucide:arrow-up-right" aria-hidden="true" />
             </a>
           </li>
         ))}

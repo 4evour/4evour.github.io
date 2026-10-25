@@ -12,7 +12,6 @@ const tourPassPosts = getPostsByProject(posts, tourPassName);
 <BaseLayout title="项目" description="4evour 的项目与作品。" pageClass="projects-page">
   <section class="container page-title project-index-title">
     <div>
-      <p class="eyebrow">Projects</p>
       <h1>项目</h1>
       <p>把做过的项目整理成可以继续阅读的入口，而不只是放几个仓库链接。</p>
     </div>
@@ -31,7 +30,6 @@ const tourPassPosts = getPostsByProject(posts, tourPassName);
       <div class="project-card-copy">
         <div>
           <div class="project-card-topline">
-            <p class="eyebrow">Case study / 01</p>
             <span>{scenicGuidePosts.length} 篇文章</span>
           </div>
           <h2>{scenicGuideName}</h2>
@@ -46,7 +44,7 @@ const tourPassPosts = getPostsByProject(posts, tourPassName);
           <span class="tag">RAG</span>
           <span class="tag">反馈闭环</span>
         </div>
-        <span class="project-card-cta">查看项目档案 <b aria-hidden="true">↗</b></span>
+        <span class="project-card-cta">查看项目档案</span>
       </div>
     </a>
 
@@ -63,7 +61,6 @@ const tourPassPosts = getPostsByProject(posts, tourPassName);
       <div class="project-card-copy">
         <div>
           <div class="project-card-topline">
-            <p class="eyebrow">Case study / 02</p>
             <span>{tourPassPosts.length} 篇文章</span>
           </div>
           <h2>{tourPassName}</h2>
@@ -78,7 +75,7 @@ const tourPassPosts = getPostsByProject(posts, tourPassName);
           <span class="tag">LangGraph</span>
           <span class="tag">React</span>
         </div>
-        <span class="project-card-cta">查看项目档案 <b aria-hidden="true">↗</b></span>
+        <span class="project-card-cta">查看项目档案</span>
       </div>
     </a>
   </section>

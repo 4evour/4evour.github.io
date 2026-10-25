@@ -67,13 +67,11 @@ const relatedPosts = post.data.project
   <article class="article">
     <header class="article-header article-hero">
       <div>
-        <p class="eyebrow article-kicker">
-          <span>{categoryLabel}</span>
-          {articleContext && <><span aria-hidden="true">/</span><span>{articleContext}</span></>}
-        </p>
         <h1>{post.data.title}</h1>
         <p class="article-description">{post.data.description}</p>
         <div class="article-meta" aria-label="文章信息">
+          <span>{categoryLabel}</span>
+          {articleContext && <span>{articleContext}</span>}
           <span>发布于 <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time></span>
           {showUpdatedDate && (
             <span>更新于 <time datetime={post.data.updatedDate!.toISOString()}>{formatDate(post.data.updatedDate!)}</time></span>

@@ -1,5 +1,4 @@
 ---
-import { Icon } from "astro-icon/components";
 import { formatDate } from "../utils/posts";
 
 interface Props {
@@ -17,10 +16,7 @@ const { prev, next, project } = Astro.props;
     {
       prev ? (
         <a class="series-nav-card" href={`/blog/${prev.id}/`}>
-          <span class="series-nav-dir">
-            <Icon name="lucide:arrow-left" aria-hidden="true" />
-            上一篇
-          </span>
+          <span class="series-nav-dir">上一篇</span>
           <strong>{prev.data.title}</strong>
           <time datetime={prev.data.pubDate.toISOString()}>
             {formatDate(prev.data.pubDate)}
@@ -33,10 +29,7 @@ const { prev, next, project } = Astro.props;
     {
       next ? (
         <a class="series-nav-card series-nav-card-next" href={`/blog/${next.id}/`}>
-          <span class="series-nav-dir">
-            下一篇
-            <Icon name="lucide:arrow-right" aria-hidden="true" />
-          </span>
+          <span class="series-nav-dir">下一篇</span>
           <strong>{next.data.title}</strong>
           <time datetime={next.data.pubDate.toISOString()}>
             {formatDate(next.data.pubDate)}

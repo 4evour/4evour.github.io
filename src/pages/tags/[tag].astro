@@ -20,7 +20,6 @@ const { tag, posts } = Astro.props;
 
 <BaseLayout title={`标签：${tag}`} description={`4evour 博客中带有 ${tag} 标签的文章。`}>
   <section class="container page-title">
-    <p class="eyebrow">Tag</p>
     <h1>{tag}</h1>
     <p>共 {posts.length} 篇文章。</p>
   </section>

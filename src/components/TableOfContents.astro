@@ -25,7 +25,8 @@ const visibleHeadings = headings.filter((heading) => heading.depth >= 2 && headi
         aria-controls="toc-nav"
       >
         <span class="toc-toggle-copy">
-          <strong>目录 · {visibleHeadings.length} 节</strong>
+          <strong>目录</strong>
+          <small>{visibleHeadings.length} 节</small>
           <small data-toc-current>{visibleHeadings[0]?.text}</small>
         </span>
         <Icon name="lucide:chevron-down" aria-hidden="true" />

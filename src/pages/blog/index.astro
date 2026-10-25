@@ -57,7 +57,6 @@ const formatArchiveDate = (date: Date) =>
   <section class="container page-title blog-index-hero">
     <div class="blog-index-title-row">
       <div>
-        <p class="eyebrow">Writing archive</p>
         <h1>文章</h1>
         <p>把项目、技术与学习过程整理成可以检索、可以继续阅读的记录。</p>
       </div>
@@ -82,7 +81,6 @@ const formatArchiveDate = (date: Date) =>
   <section class="container section blog-archive-section" data-blog-archive>
     <header class="blog-archive-toolbar">
       <div>
-        <p class="eyebrow">Browse the archive</p>
         <h2>按栏目浏览</h2>
       </div>
       <p class="blog-filter-status" aria-live="polite" data-blog-filter-status>显示全部 {posts.length} 篇文章</p>
@@ -147,7 +145,6 @@ const formatArchiveDate = (date: Date) =>
                       {post.data.project && <small>{post.data.project}</small>}
                     </span>
                     <time datetime={post.data.pubDate.toISOString()}>{formatArchiveDate(post.data.pubDate)}</time>
-                    <Icon class="blog-archive-arrow" name="lucide:arrow-up-right" aria-hidden="true" />
                   </a>
                 </li>
               ))}
@@ -219,7 +216,7 @@ const formatArchiveDate = (date: Date) =>
       if (query) filterLabels.push(`搜索「${input.value.trim()}」`);
       if (status) {
         status.textContent = filterLabels.length
-          ? `${filterLabels.join(" · ")}：${visibleTotal} 篇`
+          ? `${filterLabels.join("，")}：${visibleTotal} 篇`
           : `当前显示 ${visibleTotal} 篇文章`;
       }
       if (emptyState) emptyState.hidden = visibleTotal !== 0;

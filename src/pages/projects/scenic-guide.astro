@@ -11,7 +11,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
 <BaseLayout title={projectName} description="灵山胜境智能导览系统项目文章归档。">
   <section class="container project-detail-hero">
     <div>
-      <p class="eyebrow">Project archive</p>
       <h1>{projectName}</h1>
       <p>
         这是我把 Go/Gin、PostgreSQL/GORM、Vue、RAG 知识库、Cookie/CSRF 鉴权、数据看板、电子围栏、
@@ -29,7 +28,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
   <section class="container section evidence-strip" aria-label="项目可信度证据">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Evidence</p>
         <h2>可复现证据</h2>
         <p>项目现在把运行、评估和联调边界写成了可复现文档，避免只靠截图讲故事。</p>
       </div>
@@ -56,7 +54,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
   <section class="container section demo-video-section" aria-label="项目演示视频">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Demo video</p>
         <h2>本地演示视频</h2>
         <p>视频串起游客端、数据看板、管理后台、地图、数字人导览和 RAG 评估边界，展示这套系统的实际运行路径。</p>
       </div>
@@ -73,7 +70,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
   <section class="container section proof-strip" aria-label="项目真实页面截图">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Runtime proof</p>
         <h2>真实页面截图</h2>
         <p>这些截图来自最新代码本地启动后的灵山导览系统，覆盖游客端、数据大屏、地图、管理后台和 Live2D 数字人舞台。</p>
       </div>
@@ -107,7 +103,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
   <section class="container section">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Notes</p>
         <h2>项目文章</h2>
         <p>按技术链路拆开写，比单独放一个仓库链接更容易看清这个项目从演示链路到游客闭环做了什么。</p>
       </div>
