@@ -45,6 +45,10 @@
   font-weight: 500;
   font-display: swap;
   src: url("/fonts/newsprint/noto-serif-sc-500.woff2") format("woff2");
+  size-adjust: 106%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
 }
 
 @font-face {
@@ -53,4 +57,8 @@
   font-weight: 700;
   font-display: swap;
   src: url("/fonts/newsprint/noto-serif-sc-700.woff2") format("woff2");
+  size-adjust: 106%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
 }
