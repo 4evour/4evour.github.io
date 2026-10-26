@@ -10,7 +10,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
 <BaseLayout title={projectName} description="Tour Pass 项目文章归档。">
   <section class="container project-detail-hero">
     <div>
-      <p class="eyebrow">Project archive</p>
       <h1>{projectName}</h1>
       <p>
         一个 C++17 + Python Agent 双引擎城市自由行规划项目，把 POI 图、Dijkstra/A*、Beam Search、BM25、
@@ -48,7 +47,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
   <section class="container section project-video-section">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Demo</p>
         <h2>Web 演示与线上入口</h2>
         <p>浏览器演示展示候选对比、路线明细、算法解释、路径检索和模板兜底；最新版本还提供 Render 线上演示。</p>
       </div>
@@ -63,7 +61,6 @@ const posts = getPostsByProject(await getPublishedPosts(), projectName);
   <section class="container section">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Notes</p>
         <h2>项目文章</h2>
         <p>按架构、算法、工程化、真实数据和 AI Agent 平台化更新拆开写，方便看清这个项目从 C++ 服务到双引擎系统的演进。</p>
       </div>

@@ -41,7 +41,7 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
     <script is:inline>
       const getPreferredTheme = () => {
         const storedTheme = localStorage.getItem("theme");
-        return storedTheme ?? "dark";
+        return storedTheme ?? "light";
       };
 
       document.documentElement.dataset.theme = getPreferredTheme();
@@ -53,10 +53,6 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
     <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="50552309-1c05-4680-92fb-17c6b7687cb5"></script>
   </head>
   <body class={pageClass}>
-    <div class="custom-cursor" aria-hidden="true" data-custom-cursor>
-      <span class="cursor-core" data-cursor-core></span>
-      <span class="cursor-trails" data-cursor-trails></span>
-    </div>
     <div class="site-shell">
       <Header />
       <main data-pagefind-body>
@@ -115,94 +111,6 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
           window.__revealObserver = observer;
         };
 
-        const initCustomCursor = () => {
-          if (window.__cursorCleanup) {
-            window.__cursorCleanup();
-          }
-
-          const canUseCustomCursor =
-            !reduceMotion &&
-            !document.body.classList.contains("reading-page") &&
-            !document.body.classList.contains("profile-page") &&
-            window.matchMedia("(pointer: fine)").matches &&
-            !window.matchMedia("(hover: none)").matches;
-
-          if (!canUseCustomCursor) {
-            document.documentElement.classList.remove("has-custom-cursor");
-            return;
-          }
-
-          const cursor = document.querySelector("[data-custom-cursor]");
-          const core = document.querySelector("[data-cursor-core]");
-          const trails = document.querySelector("[data-cursor-trails]");
-          if (!cursor || !core || !trails) return;
-
-          const controller = new AbortController();
-          const trailWords = ["4e", "Go", "RAG", "AI", "Live2D"];
-          let pointerX = window.innerWidth / 2;
-          let pointerY = window.innerHeight / 2;
-          let coreX = pointerX;
-          let coreY = pointerY;
-          let lastTrailX = pointerX;
-          let lastTrailY = pointerY;
-          let trailIndex = 0;
-          let frame = 0;
-
-          document.documentElement.classList.add("has-custom-cursor");
-
-          const paintCursor = () => {
-            coreX += (pointerX - coreX) * 0.28;
-            coreY += (pointerY - coreY) * 0.28;
-            core.style.transform = `translate3d(${coreX}px, ${coreY}px, 0)`;
-            frame = requestAnimationFrame(paintCursor);
-          };
-
-          const createTrail = () => {
-            const distance = Math.hypot(pointerX - lastTrailX, pointerY - lastTrailY);
-            if (distance < 34) return;
-
-            const trail = document.createElement("span");
-            trail.className = "cursor-trail";
-            trail.textContent = trailWords[trailIndex % trailWords.length];
-            trail.style.left = `${pointerX}px`;
-            trail.style.top = `${pointerY}px`;
-            trail.style.setProperty("--trail-rotate", `${(trailIndex % 2 === 0 ? -1 : 1) * (8 + (trailIndex % 3) * 5)}deg`);
-            trails.append(trail);
-            trailIndex += 1;
-            lastTrailX = pointerX;
-            lastTrailY = pointerY;
-
-            window.setTimeout(() => trail.remove(), 780);
-          };
-
-          const setCursorPosition = (event) => {
-            pointerX = event.clientX;
-            pointerY = event.clientY;
-            cursor.classList.add("is-visible");
-            createTrail();
-          };
-
-          const syncInteractiveState = (event) => {
-            const target = event.target;
-            const interactive = target instanceof Element && target.closest("a, button, input, textarea, select, summary, [role='button']");
-            cursor.classList.toggle("is-interactive", Boolean(interactive));
-          };
-
-          window.addEventListener("pointermove", setCursorPosition, { passive: true, signal: controller.signal });
-          window.addEventListener("pointerover", syncInteractiveState, { passive: true, signal: controller.signal });
-          window.addEventListener("pointerdown", () => cursor.classList.add("is-pressed"), { signal: controller.signal });
-          window.addEventListener("pointerup", () => cursor.classList.remove("is-pressed"), { signal: controller.signal });
-          document.addEventListener("mouseleave", () => cursor.classList.remove("is-visible"), { signal: controller.signal });
-          document.addEventListener("mouseenter", () => cursor.classList.add("is-visible"), { signal: controller.signal });
-          frame = requestAnimationFrame(paintCursor);
-
-          window.__cursorCleanup = () => {
-            controller.abort();
-            cancelAnimationFrame(frame);
-            document.documentElement.classList.remove("has-custom-cursor");
-          };
-        };
-
         const initProfileScrollMotion = () => {
           if (window.__profileScrollCleanup) {
             window.__profileScrollCleanup();
@@ -246,113 +154,9 @@ const ogImageURL = ogImage ?? new URL("/favicon.svg", Astro.site).href;
           };
         };
 
-        const initProfileHeroPointer = () => {
-          if (window.__profileHeroPointerCleanup) {
-            window.__profileHeroPointerCleanup();
-          }
-
-          if (
-            reduceMotion ||
-            !document.body.classList.contains("profile-page") ||
-            !window.matchMedia("(pointer: fine) and (hover: hover)").matches
-          ) {
-            return;
-          }
-
-          const hero = document.querySelector(".profile-hero");
-          if (!hero) return;
-
-          let frame = 0;
-          let pointerX = 0;
-          let pointerY = 0;
-
-          const update = () => {
-            frame = 0;
-            const rect = hero.getBoundingClientRect();
-            const offsetX = ((pointerX - (rect.left + rect.width / 2)) / rect.width) * -18;
-            const offsetY = ((pointerY - (rect.top + rect.height / 2)) / rect.height) * -12;
-            hero.style.setProperty("--profile-hero-pointer-x", `${offsetX.toFixed(2)}px`);
-            hero.style.setProperty("--profile-hero-pointer-y", `${offsetY.toFixed(2)}px`);
-          };
-
-          const onPointerMove = (event) => {
-            pointerX = event.clientX;
-            pointerY = event.clientY;
-            if (!frame) frame = window.requestAnimationFrame(update);
-            hero.classList.add("is-pointer-active");
-          };
-
-          const onPointerLeave = () => {
-            hero.classList.remove("is-pointer-active");
-            hero.style.removeProperty("--profile-hero-pointer-x");
-            hero.style.removeProperty("--profile-hero-pointer-y");
-          };
-
-          hero.addEventListener("pointermove", onPointerMove, { passive: true });
-          hero.addEventListener("pointerleave", onPointerLeave, { passive: true });
-
-          window.__profileHeroPointerCleanup = () => {
-            if (frame) window.cancelAnimationFrame(frame);
-            hero.removeEventListener("pointermove", onPointerMove);
-            hero.removeEventListener("pointerleave", onPointerLeave);
-            hero.classList.remove("is-pointer-active");
-            hero.style.removeProperty("--profile-hero-pointer-x");
-            hero.style.removeProperty("--profile-hero-pointer-y");
-            window.__profileHeroPointerCleanup = null;
-          };
-        };
-
-        const initProfileProjectPointer = () => {
-          if (window.__profileProjectPointerCleanup) {
-            window.__profileProjectPointerCleanup();
-          }
-
-          if (
-            reduceMotion ||
-            !document.body.classList.contains("profile-page") ||
-            !window.matchMedia("(pointer: fine) and (hover: hover)").matches
-          ) {
-            return;
-          }
-
-          const projects = [...document.querySelectorAll(".profile-project")];
-          if (!projects.length) return;
-
-          const cleanups = projects.map((project) => {
-            const onPointerMove = (event) => {
-              const rect = project.getBoundingClientRect();
-              const x = ((event.clientX - rect.left) / rect.width) * 100;
-              const y = ((event.clientY - rect.top) / rect.height) * 100;
-              project.style.setProperty("--project-pointer-x", `${x.toFixed(2)}%`);
-              project.style.setProperty("--project-pointer-y", `${y.toFixed(2)}%`);
-            };
-            const onPointerEnter = () => project.classList.add("is-pointer-active");
-            const onPointerLeave = () => project.classList.remove("is-pointer-active");
-
-            project.addEventListener("pointermove", onPointerMove, { passive: true });
-            project.addEventListener("pointerenter", onPointerEnter, { passive: true });
-            project.addEventListener("pointerleave", onPointerLeave, { passive: true });
-
-            return () => {
-              project.removeEventListener("pointermove", onPointerMove);
-              project.removeEventListener("pointerenter", onPointerEnter);
-              project.removeEventListener("pointerleave", onPointerLeave);
-              project.classList.remove("is-pointer-active");
-            };
-          });
-
-          window.__profileProjectPointerCleanup = () => {
-            cleanups.forEach((cleanup) => cleanup());
-            window.__profileProjectPointerCleanup = null;
-          };
-        };
-
         initThemeToggle();
         initRevealOnScroll();
         initProfileScrollMotion();
-        initProfileHeroPointer();
-        initProfileProjectPointer();
-        initCustomCursor();
 
         // Track pageview on ClientRouter navigation
         if (window.umami) {
